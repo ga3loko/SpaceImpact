@@ -3,10 +3,10 @@
 
 #include "bullet.h"
 
-bullet* bullet_cria(unsigned short x, unsigned short y, unsigned char trajetoria, bullet* prox)
+bullet* bullet_cria(unsigned short x, short y, unsigned char trajetoria, bullet* prox)
 {
 
-    if (trajetoria > 1) 
+    if (trajetoria > 2) 
 	return NULL;
 
     bullet *new_bullet = (bullet*) malloc(sizeof(bullet));
@@ -24,11 +24,19 @@ bullet* bullet_cria(unsigned short x, unsigned short y, unsigned char trajetoria
 
 void bullet_move(bullet *bullet)
 {
-
-     if (!bullet->trajetoria) 
-	bullet->x -= BULLET_VEL;
-     else 
-	bullet->x += BULLET_VEL;
+    switch (bullet->trajetoria) {
+	case 0:
+	    bullet->x -= BULLET_VEL;
+	    break;
+	case 1:
+	    bullet->x += BULLET_VEL;
+	    break;
+	case 2:
+	    bullet->y += BULLET_VEL;
+	    break;
+	default:
+	    break;
+    }
 
 }
 

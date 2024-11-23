@@ -12,7 +12,7 @@ typedef struct {
 } pistola;
 
 pistola* pistola_cria();
-bullet* pistola_atira(unsigned short x, unsigned short y, unsigned char trajetoria, pistola *arma);
+bullet* pistola_atira(unsigned short x, short y, unsigned char trajetoria, pistola *arma);
 void pistola_destroi(pistola *pistola);
 
 #endif

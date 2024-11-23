@@ -5,3 +5,6 @@ FLAGS = -Wall -Wextra -pedantic -g
 
 all:
 	gcc $(SOURCES) -o $(TARGET) $(ALLEGRO_FLAGS) $(FLAGS)
+
+clean:
+	rm -f $(TARGET)

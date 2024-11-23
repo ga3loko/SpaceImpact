@@ -36,6 +36,14 @@ inimigo* inimigo_cria(unsigned char tipo, unsigned short x, unsigned short y, un
 	    new_inimigo->arma = NULL;
 	    new_inimigo->direcao = 0;
 	    new_inimigo->vel = INIMIGO3_VEL;
+	    break;
+	case TIPO4:
+	    new_inimigo->hp = INIMIGO4_HP;
+	    new_inimigo->tam_x = INIMIGO4_TAM_X;
+	    new_inimigo->tam_y = INIMIGO4_TAM_Y;
+	    new_inimigo->arma = pistola_cria();
+	    new_inimigo->direcao = 0;
+	    new_inimigo->vel = INIMIGO4_VEL;
 	default:
 	    break;
     }
@@ -104,16 +112,19 @@ void inimigo_move(inimigo *inimigo, unsigned char passo, short min_x, unsigned s
 
 }
 
-void inimigo_atira(inimigo *inimigo)
+void inimigo_atira(inimigo *inimigo, unsigned short x)
 {
    
     if (!inimigo->arma)
 	return;
 
     bullet *shot;
-
-    shot = pistola_atira(inimigo->x - inimigo->tam_x/2, inimigo->y, 0, 
-		         inimigo->arma);
+    
+    if (inimigo->tipo == 3)
+        shot = pistola_atira(x, -BULLET_TAM_X, 2, inimigo->arma);
+    else
+        shot = pistola_atira(inimigo->x - inimigo->tam_x/2, inimigo->y, 0, 
+		             inimigo->arma);
     if (shot)
 	inimigo->arma->shots = shot;
 

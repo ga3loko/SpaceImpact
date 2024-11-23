@@ -6,6 +6,7 @@
 #define TIPO1 0
 #define TIPO2 1
 #define TIPO3 2
+#define TIPO4 3
 #define INIMIGO1_HP 2
 #define INIMIGO1_VEL 5
 #define INIMIGO1_TAM_X 40
@@ -18,6 +19,10 @@
 #define INIMIGO3_VEL 3
 #define INIMIGO3_TAM_X 40
 #define INIMIGO3_TAM_Y 40
+#define INIMIGO4_HP 3
+#define INIMIGO4_VEL 1
+#define INIMIGO4_TAM_X 40
+#define INIMIGO4_TAM_Y 100
 
 typedef struct {
     unsigned char tipo;
@@ -38,6 +43,6 @@ void inimigo_destroi(inimigo *inimigo);
 
 void inimigo_move(inimigo *inimigo, unsigned char passo, short min_x, unsigned short max_y, unsigned char *valid);
 
-void inimigo_atira(inimigo *inimigo);
+void inimigo_atira(inimigo *inimigo, unsigned short x);
 
 #endif

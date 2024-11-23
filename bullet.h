@@ -7,12 +7,12 @@
 
 typedef struct {
     unsigned short x;
-    unsigned short y;
+    short y;
     unsigned char trajetoria;
     struct bullet *prox;
 } bullet;
 
-bullet* bullet_cria(unsigned short x, unsigned short y, unsigned char trajetoria, bullet *prox);
+bullet* bullet_cria(unsigned short x, short y, unsigned char trajetoria, bullet *prox);
 
 void bullet_move(bullet *bullet);
 

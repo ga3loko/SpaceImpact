@@ -37,7 +37,7 @@ void movimenta_bullets_inimigo(inimigo *inimigo){
     bullet *anterior = NULL;
     for (bullet *index = inimigo->arma->shots; index != NULL;){
         bullet_move(index);
-        if (index->x <= 0){
+        if (index->x <= 0 || index->y >= Y_TELA){
             if (anterior){
                 anterior->prox = index->prox;
                 bullet_destroi(index);
@@ -58,10 +58,14 @@ void movimenta_bullets_inimigo(inimigo *inimigo){
 
 unsigned char colidiu(player* player, inimigo *inimigo)
 {
-    if ((((player->y - player->tam_y/2 >= inimigo->y - inimigo->tam_y/2) && (inimigo->y + inimigo->tam_y/2 >= player->y - player->tam_y/2)) ||
-        ((inimigo->y - inimigo->tam_y/2 >= player->y - player->tam_y/2) && (player->y + player->tam_y/2 >= inimigo->y - inimigo->tam_y/2))) &&
-        (((player->x - player->tam_y/2 >= inimigo->x - inimigo->tam_x/2) && (inimigo->x + inimigo->tam_x/2 >= player->x - player->tam_x/2)) ||
-        ((inimigo->x - inimigo->tam_x/2 >= player->x - player->tam_x/2) && (player->x + player->tam_x/2 >= inimigo->x - inimigo->tam_x/2)))) 
+    if ((((player->y - player->tam_y/2 >= inimigo->y - inimigo->tam_y/2) && 
+	 (inimigo->y + inimigo->tam_y/2 >= player->y - player->tam_y/2)) ||
+         ((inimigo->y - inimigo->tam_y/2 >= player->y - player->tam_y/2) && 
+	(player->y + player->tam_y/2 >= inimigo->y - inimigo->tam_y/2))) &&
+        (((player->x - player->tam_y/2 >= inimigo->x - inimigo->tam_x/2) && 
+	 (inimigo->x + inimigo->tam_x/2 >= player->x - player->tam_x/2)) ||
+         ((inimigo->x - inimigo->tam_x/2 >= player->x - player->tam_x/2) && 
+	  (player->x + player->tam_x/2 >= inimigo->x - inimigo->tam_x/2)))) 
 	return 1;
     return 0;
 
@@ -96,10 +100,14 @@ unsigned char matou_inimigo(player *player, inimigo *inimigo)
     bullet *anterior = NULL;
     for (bullet *index = player->arma->shots; index != NULL;
                             index = (bullet*) index->prox) {
-        if ((((index->y - BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2) && (inimigo->y + inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
-            ((inimigo->y - inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2) && (index->y + BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2))) &&
-            (((index->x - BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2) && (inimigo->x + inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
-            ((inimigo->x - inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2) && (index->x + BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2)))) {
+        if ((((index->y - BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2) && 
+	     (inimigo->y + inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
+             ((inimigo->y - inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2) && 
+	    (index->y + BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2))) &&
+            (((index->x - BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2) && 
+	     (inimigo->x + inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
+             ((inimigo->x - inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2) && 
+	     (index->x + BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2)))) {
 
             inimigo->hp--;
 
@@ -140,10 +148,14 @@ unsigned char matou_player(player *player, inimigo *inimigo)
     bullet *anterior = NULL;
     for (bullet *index = inimigo->arma->shots; index != NULL;
                             index = (bullet*) index->prox) {
-        if ((((index->y - BULLET_TAM_Y/2 >= player->y - player->tam_y/2) && (player->y + player->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
-	    ((player->y - player->tam_y/2 >= index->y - BULLET_TAM_Y/2) && (index->y + BULLET_TAM_Y/2 >= player->y - player->tam_y/2))) &&
-	    (((index->x - BULLET_TAM_X/2 >= player->x - player->tam_x/2) && (player->x + player->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
- 	    ((player->x - player->tam_x/2 >= index->x - BULLET_TAM_X/2) && (index->x + BULLET_TAM_X/2 >= player->x - player->tam_x/2)))) {
+        if ((((index->y - BULLET_TAM_Y/2 >= player->y - player->tam_y/2) && 
+	     (player->y + player->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
+	     ((player->y - player->tam_y/2 >= index->y - BULLET_TAM_Y/2) && 
+	    (index->y + BULLET_TAM_Y/2 >= player->y - player->tam_y/2))) &&
+	    (((index->x - BULLET_TAM_X/2 >= player->x - player->tam_x/2) && 
+	     (player->x + player->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
+ 	     ((player->x - player->tam_x/2 >= index->x - BULLET_TAM_X/2) && 
+	     (index->x + BULLET_TAM_X/2 >= player->x - player->tam_x/2)))) {
 
             player->hp--;
 
@@ -187,7 +199,7 @@ unsigned char atualiza_inimigos(inimigo **inimigos, size_t ini_num, unsigned cha
 	    if (valid[i]) {
 	        if (inimigos[i]->arma) {
 		    if (!inimigos[i]->arma->timer) {
-                        inimigo_atira(inimigos[i]);
+                        inimigo_atira(inimigos[i], player->x);
 			inimigos[i]->arma->timer = PISTOLA_INI_COOLDOWN;
 		    }
 		    else
@@ -200,7 +212,8 @@ unsigned char atualiza_inimigos(inimigo **inimigos, size_t ini_num, unsigned cha
 		    valid[i] = 0;
 		}
                 
-                if (valid[i] && !player->colisao && matou_player(player, inimigos[i]))
+                if (valid[i] && !player->colisao && 
+				matou_player(player, inimigos[i]))
 		    return 1;
 	    }
 	}
@@ -228,20 +241,27 @@ int main()
     if (player == NULL) 
 	return 1;
     
-    inimigo* inimigos[3];
-    size_t ini_num = 3;
+    inimigo* inimigos[4];
+    size_t ini_num = 4;
 
-    inimigos[0] = inimigo_cria(0, X_TELA + 50, Y_TELA/2, 30 * 2);
-    inimigos[1] = inimigo_cria(2, X_TELA + 50, Y_TELA/2, 30 * 4);
-    inimigos[2] = inimigo_cria(1, X_TELA + 90, Y_TELA/2, 30 * 6);
+    inimigos[0] = inimigo_cria(TIPO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, 
+		    30 * 2);
+    inimigos[1] = inimigo_cria(TIPO3, X_TELA + INIMIGO3_TAM_X, Y_TELA/2, 
+		    30 * 4);
+    inimigos[2] = inimigo_cria(TIPO2, X_TELA + INIMIGO2_TAM_X, Y_TELA/2, 
+		    30 * 6);
+    inimigos[3] = inimigo_cria(TIPO4, X_TELA + INIMIGO4_TAM_X, 
+		    Y_TELA - INIMIGO4_TAM_Y/2, 30 * 1);
 
-    if (inimigos[0] == NULL || inimigos[1] == NULL || inimigos[2] == NULL)
+    if (inimigos[0] == NULL || inimigos[1] == NULL || inimigos[2] == NULL ||
+		    inimigos[3] == NULL)
 	return 1;
 
-    unsigned char  v[3];
+    unsigned char  v[4];
     v[0] = 1;
     v[1] = 1;
     v[2] = 1;
+    v[3] = 1;
 
     unsigned short time = 0;
     unsigned char gameover = 0;
@@ -301,12 +321,23 @@ int main()
                                          al_map_rgb(255, 0, 0));
 		    if (inimigos[i]->arma != NULL) {
                         for (bullet *index = inimigos[i]->arma->shots; 
-			         index != NULL; index = (bullet*) index->prox)
-                            al_draw_filled_rectangle(index->x - BULLET_TAM_X/2, 
+			     index != NULL; index = (bullet*) index->prox) {
+                            
+                            if (inimigos[i]->tipo == 3)
+	                        al_draw_filled_rectangle(
+						     index->x - BULLET_TAM_Y/2,
+                                                     index->y - BULLET_TAM_X/2,
+                                                     index->x + BULLET_TAM_Y/2,
+                                                     index->y + BULLET_TAM_X/2,
+                                                     al_map_rgb(255, 255, 0));
+			    else
+			        al_draw_filled_rectangle(
+						     index->x - BULLET_TAM_X/2, 
 					             index->y - BULLET_TAM_Y/2,
 					             index->x + BULLET_TAM_X/2,
 					             index->y + BULLET_TAM_Y/2,
                                                      al_map_rgb(255, 255, 0));
+			}
 		    }
 	        }
 	    } 
@@ -347,6 +378,10 @@ int main()
 	
     }
 
+    for (size_t i = 0; i < ini_num; i++) {
+        if (v[i])
+            inimigo_destroi(inimigos[i]);
+    }
     al_destroy_font(font);
     al_destroy_display(tela);
     al_destroy_timer(relogio);
