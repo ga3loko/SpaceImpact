@@ -4,7 +4,8 @@
 #include "joystick.h"
 #include "pistola.h"
 
-#define PLAYER_VEL 5
+#define PLAYER_HP 3
+#define PLAYER_VEL 7
 #define PLAYER_TAM_X 80
 #define PLAYER_TAM_Y 40
 #define INVENCIBILIDADE 90

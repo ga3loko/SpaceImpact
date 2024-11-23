@@ -7,7 +7,7 @@ player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, 
 {
 
     player *new_player = (player*) malloc(sizeof(player));
-    new_player->hp = 3;
+    new_player->hp = PLAYER_HP;
     new_player->colisao = 0;
     new_player->timer_colisao = INVENCIBILIDADE;
     new_player->tam_x = tam_x;

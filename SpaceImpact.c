@@ -173,7 +173,16 @@ unsigned char atualiza_inimigos(inimigo **inimigos, size_t ini_num, unsigned cha
     
     for (size_t i = 0; i < ini_num; i++) {
         if (valid[i] && time >= inimigos[i]->spawn) {
-            inimigo_move(inimigos[i], 1, -inimigos[i]->tam_x, Y_TELA, 
+            
+            if (inimigos[i]->tipo == TIPO3) {
+                if (player->y > inimigos[i]->y + inimigos[i]->tam_y/2)
+		    inimigos[i]->direcao = 2;
+		else if (player->y < inimigos[i]->y - inimigos[i]->tam_y/2)
+		    inimigos[i]->direcao = 1;
+		else 
+		    inimigos[i]->direcao = 0;
+	    }
+	    inimigo_move(inimigos[i], 1, -inimigos[i]->tam_x, Y_TELA, 
 			 &valid[i]);
 	    if (valid[i]) {
 	        if (inimigos[i]->arma) {
@@ -223,7 +232,7 @@ int main()
     size_t ini_num = 3;
 
     inimigos[0] = inimigo_cria(0, X_TELA + 50, Y_TELA/2, 30 * 2);
-    inimigos[1] = inimigo_cria(0, X_TELA + 50, Y_TELA/2, 30 * 4);
+    inimigos[1] = inimigo_cria(2, X_TELA + 50, Y_TELA/2, 30 * 4);
     inimigos[2] = inimigo_cria(1, X_TELA + 90, Y_TELA/2, 30 * 6);
 
     if (inimigos[0] == NULL || inimigos[1] == NULL || inimigos[2] == NULL)

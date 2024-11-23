@@ -1,7 +1,7 @@
 #ifndef __BULLET__
 #define __BULLET__
 
-#define BULLET_VEL 8
+#define BULLET_VEL 10
 #define BULLET_TAM_X 40
 #define BULLET_TAM_Y 20
 
