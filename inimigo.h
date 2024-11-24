@@ -3,10 +3,6 @@
 
 #include "pistola.h"
 
-#define TIPO1 0
-#define TIPO2 1
-#define TIPO3 2
-#define TIPO4 3
 #define INIMIGO1_HP 2
 #define INIMIGO1_VEL 5
 #define INIMIGO1_TAM_X 40
@@ -23,9 +19,16 @@
 #define INIMIGO4_VEL 1
 #define INIMIGO4_TAM_X 40
 #define INIMIGO4_TAM_Y 100
+enum tipoInimigo {
+    INIMIGO1,
+    INIMIGO2,
+    INIMIGO3,
+    INIMIGO4
+};
+
 
 typedef struct {
-    unsigned char tipo;
+    enum tipoInimigo tipo;
     unsigned char hp;
     unsigned char tam_x;
     unsigned char tam_y;
@@ -37,7 +40,7 @@ typedef struct {
     pistola *arma;
 } inimigo;
 
-inimigo* inimigo_cria(unsigned char tipo, unsigned short x, unsigned short y, unsigned short spawn);
+inimigo* inimigo_cria(enum tipoInimigo tipo, unsigned short x, unsigned short y, unsigned short spawn);
 
 void inimigo_destroi(inimigo *inimigo);
 

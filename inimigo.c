@@ -3,17 +3,17 @@
 
 #include "inimigo.h"
 
-inimigo* inimigo_cria(unsigned char tipo, unsigned short x, unsigned short y, unsigned short spawn)
+inimigo* inimigo_cria(enum tipoInimigo tipo, unsigned short x, unsigned short y, unsigned short spawn)
 {
     
     inimigo *new_inimigo = (inimigo*) malloc(sizeof(inimigo));
-    new_inimigo->tipo = tipo;
     new_inimigo->x = x;
     new_inimigo->y = y;
     new_inimigo->spawn = spawn;
 
     switch (tipo) {
-        case TIPO1:
+        case INIMIGO1:
+	    new_inimigo->tipo = INIMIGO1;
 	    new_inimigo->hp = INIMIGO1_HP;
 	    new_inimigo->tam_x = INIMIGO1_TAM_X;
 	    new_inimigo->tam_y = INIMIGO1_TAM_Y;
@@ -21,7 +21,8 @@ inimigo* inimigo_cria(unsigned char tipo, unsigned short x, unsigned short y, un
 	    new_inimigo->direcao = 0;
 	    new_inimigo->vel = INIMIGO1_VEL;
 	    break;
-	case TIPO2:
+	case INIMIGO2:
+	    new_inimigo->tipo = INIMIGO2;
 	    new_inimigo->hp = INIMIGO2_HP;
 	    new_inimigo->tam_x = INIMIGO2_TAM_X;
 	    new_inimigo->tam_y = INIMIGO2_TAM_Y;
@@ -29,7 +30,8 @@ inimigo* inimigo_cria(unsigned char tipo, unsigned short x, unsigned short y, un
 	    new_inimigo->direcao = 1;
 	    new_inimigo->vel = INIMIGO2_VEL;
 	    break;
-	case TIPO3:
+	case INIMIGO3:
+	    new_inimigo->tipo = INIMIGO3;
 	    new_inimigo->hp = INIMIGO3_HP;
 	    new_inimigo->tam_x = INIMIGO3_TAM_X;
 	    new_inimigo->tam_y = INIMIGO3_TAM_Y;
@@ -37,7 +39,8 @@ inimigo* inimigo_cria(unsigned char tipo, unsigned short x, unsigned short y, un
 	    new_inimigo->direcao = 0;
 	    new_inimigo->vel = INIMIGO3_VEL;
 	    break;
-	case TIPO4:
+	case INIMIGO4:
+	    new_inimigo->tipo = INIMIGO4;
 	    new_inimigo->hp = INIMIGO4_HP;
 	    new_inimigo->tam_x = INIMIGO4_TAM_X;
 	    new_inimigo->tam_y = INIMIGO4_TAM_Y;
@@ -62,7 +65,7 @@ void inimigo_move(inimigo *inimigo, unsigned char passo, short min_x, unsigned s
 {
 
     switch (inimigo->tipo) {
-	case TIPO2:
+	case INIMIGO2:
             switch (inimigo->direcao) {
                 case 1:
 		    if ((inimigo->y - passo * inimigo->vel) - 
@@ -82,7 +85,7 @@ void inimigo_move(inimigo *inimigo, unsigned char passo, short min_x, unsigned s
 		    break;
 	    }
 	    break;
-        case TIPO3:
+        case INIMIGO3:
 	        switch (inimigo->direcao) {
                 case 1:
                     if ((inimigo->y - passo * inimigo->vel) -
@@ -120,7 +123,7 @@ void inimigo_atira(inimigo *inimigo, unsigned short x)
 
     bullet *shot;
     
-    if (inimigo->tipo == 3)
+    if (inimigo->tipo == INIMIGO4)
         shot = pistola_atira(x, -BULLET_TAM_X, 2, inimigo->arma);
     else
         shot = pistola_atira(inimigo->x - inimigo->tam_x/2, inimigo->y, 0, 

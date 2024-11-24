@@ -6,6 +6,7 @@
 
 #include "player.h"
 #include "inimigo.h"
+#include "boss.h"
 
 #define X_TELA 1080
 #define Y_TELA 720
@@ -56,6 +57,30 @@ void movimenta_bullets_inimigo(inimigo *inimigo){
     }
 }
 
+void movimenta_bullets_boss(boss *boss){
+    bullet *anterior = NULL;
+    for (bullet *index = boss->arma->shots; index != NULL;){
+        bullet_move(index);
+        if (index->x <= 0){
+            if (anterior){
+                anterior->prox = index->prox;
+                bullet_destroi(index);
+                index = (bullet*) anterior->prox;
+            }
+            else {
+                boss->arma->shots = (bullet*) index->prox;
+                bullet_destroi(index);
+                index = boss->arma->shots;
+            }
+        }
+        else {
+            anterior = index;
+            index = (bullet*) index->prox;
+        }
+    }
+}
+
+
 unsigned char colidiu(player* player, inimigo *inimigo)
 {
     if ((((player->y - player->tam_y/2 >= inimigo->y - inimigo->tam_y/2) && 
@@ -93,6 +118,23 @@ void movimenta_player(player *player)
 
     movimenta_bullets_player(player);
 }
+
+void movimenta_boss(boss *boss, unsigned short time)
+{
+    if (time >= boss->spawn) {
+        boss_move(boss, 1, X_TELA - boss->tam_x/2 - 150, Y_TELA - boss->tam_y/2,
+		    boss->tam_y/2);
+        if (!boss->arma->timer) {
+            boss_atira(boss);
+            boss->arma->timer = PISTOLA_BOSS_COOLDOWN;
+        }
+        else
+            boss->arma->timer--;
+
+        movimenta_bullets_boss(boss);
+    }
+}
+
 
 unsigned char matou_inimigo(player *player, inimigo *inimigo)
 {
@@ -186,7 +228,7 @@ unsigned char atualiza_inimigos(inimigo **inimigos, size_t ini_num, unsigned cha
     for (size_t i = 0; i < ini_num; i++) {
         if (valid[i] && time >= inimigos[i]->spawn) {
             
-            if (inimigos[i]->tipo == TIPO3) {
+            if (inimigos[i]->tipo == INIMIGO3) {
                 if (player->y > inimigos[i]->y + inimigos[i]->tam_y/2)
 		    inimigos[i]->direcao = 2;
 		else if (player->y < inimigos[i]->y - inimigos[i]->tam_y/2)
@@ -244,17 +286,21 @@ int main()
     inimigo* inimigos[4];
     size_t ini_num = 4;
 
-    inimigos[0] = inimigo_cria(TIPO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, 
+    inimigos[0] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, 
 		    30 * 2);
-    inimigos[1] = inimigo_cria(TIPO3, X_TELA + INIMIGO3_TAM_X, Y_TELA/2, 
+    inimigos[1] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, Y_TELA/2, 
 		    30 * 4);
-    inimigos[2] = inimigo_cria(TIPO2, X_TELA + INIMIGO2_TAM_X, Y_TELA/2, 
+    inimigos[2] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, Y_TELA/2, 
 		    30 * 6);
-    inimigos[3] = inimigo_cria(TIPO4, X_TELA + INIMIGO4_TAM_X, 
+    inimigos[3] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X, 
 		    Y_TELA - INIMIGO4_TAM_Y/2, 30 * 1);
+
+    boss* boss = boss_cria(BOSS1, X_TELA + BOSS1_TAM_X, Y_TELA/2, 30 * 10);
 
     if (inimigos[0] == NULL || inimigos[1] == NULL || inimigos[2] == NULL ||
 		    inimigos[3] == NULL)
+	return 1;
+    if (!boss)
 	return 1;
 
     unsigned char  v[4];
@@ -279,7 +325,8 @@ int main()
                 al_draw_text(font, al_map_rgb(255, 255, 255), X_TELA/2 - 110, 
 				Y_TELA/2 + 5, 0, "PRESSIONE ESPAÇO PARA SAIR");
                 al_flip_display();
-                if ((evento.type == 10) && (evento.keyboard.keycode == 75))
+                if ((evento.type == ALLEGRO_EVENT_KEY_DOWN) && 
+		    (evento.keyboard.keycode == ALLEGRO_KEY_SPACE))
                     break;
                 else if (evento.type == 42)
                     break;
@@ -289,6 +336,7 @@ int main()
             time++;
 	    movimenta_player(player);
 	    gameover = atualiza_inimigos(inimigos, ini_num, v, time, player);
+	    movimenta_boss(boss, time);
 
 	    al_clear_to_color(al_map_rgb(0, 0, 0));
             if (!player->colisao)
@@ -340,10 +388,25 @@ int main()
 			}
 		    }
 	        }
-	    } 
+	    }
+
+            al_draw_filled_rectangle(boss->x - boss->tam_x/2,
+			             boss->y - boss->tam_y/2,
+				     boss->x + boss->tam_x/2,
+				     boss->y + boss->tam_y/2,
+				     al_map_rgb(100, 100, 100));
+	    
+	    for (bullet *index = boss->arma->shots; index != NULL;
+		        index = (bullet*) index->prox)
+                al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
+                                         index->y - BULLET_TAM_Y/2,
+                                         index->x + BULLET_TAM_X/2,
+                                         index->y + BULLET_TAM_Y/2,
+                                         al_map_rgb(0, 255, 0));
+
 
 	    for (bullet *index = player->arma->shots; index != NULL; 
-	              index = (bullet*) index->prox)
+	                index = (bullet*) index->prox)
 		al_draw_filled_rectangle(index->x - BULLET_TAM_X/2, 
 				         index->y - BULLET_TAM_Y/2,
 					 index->x + BULLET_TAM_X/2,
@@ -352,21 +415,22 @@ int main()
 
 	    al_flip_display();
 	}
-	else if ((evento.type == 10) || (evento.type == 12)) {
+	else if ((evento.type == ALLEGRO_EVENT_KEY_UP) || 
+	        (evento.type == ALLEGRO_EVENT_KEY_DOWN)) {
             switch (evento.keyboard.keycode) {
-                case 1:
+                case ALLEGRO_KEY_A:
 	            joystick_esq(player->controle);
 		    break;
-		case 4:
+		case ALLEGRO_KEY_D:
 		    joystick_dir(player->controle);
 		    break;
-		case 23:
+		case ALLEGRO_KEY_W:
 		    joystick_cima(player->controle);
 		    break;
-		case 19:
+		case ALLEGRO_KEY_S:
 		    joystick_baixo(player->controle);
 		    break;
-		case 3:
+		case ALLEGRO_KEY_C:
 		    joystick_atira(player->controle);
 		    break;
 		default:
@@ -382,6 +446,7 @@ int main()
         if (v[i])
             inimigo_destroi(inimigos[i]);
     }
+    boss_destroi(boss);
     al_destroy_font(font);
     al_destroy_display(tela);
     al_destroy_timer(relogio);
