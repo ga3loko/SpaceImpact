@@ -11,7 +11,7 @@
 #define INVENCIBILIDADE 90
 
 typedef struct {
-    unsigned char hp;
+    char hp;
     unsigned char colisao;
     unsigned char timer_colisao;
     unsigned char tam_x;

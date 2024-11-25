@@ -11,6 +11,7 @@ boss* boss_cria(enum tipoBoss tipo, unsigned short x, unsigned short y, unsigned
     new_boss->y = y;
     new_boss->spawn = spawn;
     new_boss->arma = pistola_cria();
+    new_boss->canhao = pistola_cria();
 
     switch (tipo) {
         case BOSS1:
@@ -31,6 +32,7 @@ boss* boss_cria(enum tipoBoss tipo, unsigned short x, unsigned short y, unsigned
 
 void boss_destroi(boss *boss)
 {
+    pistola_destroi(boss->canhao);
     pistola_destroi(boss->arma);
     free(boss);
 }
@@ -79,4 +81,14 @@ void boss_atira(boss *boss)
     if (shot2)
 	boss->arma->shots = shot2;
 
+}
+
+void boss_especial(boss *boss, unsigned short y)
+{
+    bullet *shot;
+
+    shot = pistola_atira(boss->x - boss->tam_x/2, y, 0, boss->canhao);
+
+    if (shot)
+	boss->canhao->shots = shot;
 }

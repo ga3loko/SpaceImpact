@@ -23,6 +23,7 @@ typedef struct {
     unsigned char direcao;
     unsigned char vel;
     pistola *arma;
+    pistola *canhao;
 } boss;
 
 boss* boss_cria(enum tipoBoss tipo, unsigned short x, unsigned short y, unsigned short spawn);
@@ -32,5 +33,7 @@ void boss_destroi(boss *boss);
 void boss_move(boss* boss, unsigned char passo, unsigned short max_x, unsigned short max_y, unsigned short min_y); 
 
 void boss_atira(boss *boss);
+
+void boss_especial(boss *boss, unsigned short y);
 
 #endif
