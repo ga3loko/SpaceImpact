@@ -11,11 +11,12 @@
 #define X_TELA 1080
 #define Y_TELA 720
 #define FPS 30
-#define SPAWN1 3
-#define SPAWN2 5
-#define SPAWN3 7
-#define SPAWN4 1
-#define SPAWNBOSS 40
+#define SPAWN1 100
+#define SPAWN2 100
+#define SPAWN3 100
+#define SPAWN4 100
+#define SPAWNBOSS1 100
+#define SPAWNBOSS2 3
 
 void movimenta_bullets_player(player *player){
     bullet *anterior = NULL;
@@ -91,23 +92,25 @@ void movimenta_bullets_boss(boss *boss){
 void movimenta_canhao_boss(boss* boss) {
 
     bullet *anterior = NULL;
-    for (bullet *index = boss->canhao->shots; index != NULL;) {
-        bullet_move(index);
-        if (index->x <= 0){
-            if (anterior){
-                anterior->prox = index->prox;
-                bullet_destroi(index);
-                index = (bullet*) anterior->prox;
+    if (boss->tipo == BOSS1) {
+        for (bullet *index = boss->canhao->shots; index != NULL;) {
+            bullet_move(index);
+            if (index->x <= 0){
+                if (anterior){
+                    anterior->prox = index->prox;
+                    bullet_destroi(index);
+                    index = (bullet*) anterior->prox;
+                }
+                else {
+                    boss->canhao->shots = (bullet*) index->prox;
+                    bullet_destroi(index);
+                    index = boss->canhao->shots;
+                }
             }
             else {
-                boss->canhao->shots = (bullet*) index->prox;
-                bullet_destroi(index);
-                index = boss->canhao->shots;
+                anterior = index;
+                index = (bullet*) index->prox;
             }
-        }
-        else {
-            anterior = index;
-            index = (bullet*) index->prox;
         }
     }
 }
@@ -245,42 +248,130 @@ unsigned char matou_player_boss(player *player, boss *boss)
     }
 
     anterior = NULL;
-    for (bullet *index = boss->canhao->shots; index != NULL;
+    if (boss->tipo == BOSS1) {
+        for (bullet *index = boss->canhao->shots; index != NULL;
                             index = (bullet*) index->prox) {
-        if ((((index->y - CANHAO_TAM_Y/2 >= player->y - player->tam_y/2) &&
-             (player->y + player->tam_y/2 >= index->y - CANHAO_TAM_Y/2)) ||
-             ((player->y - player->tam_y/2 >= index->y - CANHAO_TAM_Y/2) &&
-            (index->y + CANHAO_TAM_Y/2 >= player->y - player->tam_y/2))) &&
-            (((index->x - CANHAO_TAM_X/2 >= player->x - player->tam_x/2) &&
-             (player->x + player->tam_x/2 >= index->x - CANHAO_TAM_X/2)) ||
-             ((player->x - player->tam_x/2 >= index->x - CANHAO_TAM_X/2) &&
-             (index->x + CANHAO_TAM_X/2 >= player->x - player->tam_x/2)))) {
+            if ((((index->y - CANHAO_TAM_Y/2 >= player->y - player->tam_y/2) &&
+                 (player->y + player->tam_y/2 >= index->y - CANHAO_TAM_Y/2)) ||
+                 ((player->y - player->tam_y/2 >= index->y - CANHAO_TAM_Y/2) &&
+                (index->y + CANHAO_TAM_Y/2 >= player->y - player->tam_y/2))) &&
+                (((index->x - CANHAO_TAM_X/2 >= player->x - player->tam_x/2) &&
+                 (player->x + player->tam_x/2 >= index->x - CANHAO_TAM_X/2)) ||
+                 ((player->x - player->tam_x/2 >= index->x - CANHAO_TAM_X/2) &&
+                (index->x + CANHAO_TAM_X/2 >= player->x - player->tam_x/2)))) {
 
-            player->hp -= 2;
+                player->hp -= 2;
 
-            if (anterior) {
-                anterior->prox = index->prox;
-                bullet_destroi(index);
-                index = (bullet*) anterior->prox;
+                if (anterior) {
+                    anterior->prox = index->prox;
+                    bullet_destroi(index);
+                    index = (bullet*) anterior->prox;
+                }
+                else {
+                    boss->canhao->shots = (bullet*) index->prox;
+                    bullet_destroi(index);
+                    index = boss->canhao->shots;
+                }
+
+                if (player->hp <= 0)
+                    return 1;
+                return 0;
             }
-            else {
-                boss->canhao->shots = (bullet*) index->prox;
-                bullet_destroi(index);
-                index = boss->canhao->shots;
-            }
-
-            if (player->hp <= 0)
-                return 1;
-            return 0;
+            anterior = index;
         }
-        anterior = index;
     }
 
     return 0;
 
 }
 
-unsigned char atualiza_boss(boss *boss, player *player)
+unsigned char matou_inimigo(player *player, inimigo *inimigo)
+{
+
+    bullet *anterior = NULL;
+    for (bullet *index = player->arma->shots; index != NULL;
+        index = (bullet*) index->prox) {
+            if ((((index->y - BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2) &&
+                 (inimigo->y + inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
+		 ((inimigo->y - inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2) &&
+	        (index->y + BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2))) &&
+		(((index->x - BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2) &&
+		 (inimigo->x + inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
+		 ((inimigo->x - inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2) &&
+		(index->x + BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2)))) {
+
+		inimigo->hp--;
+
+                if (anterior) {
+	            anterior->prox = index->prox;
+                    bullet_destroi(index);
+		    index = (bullet*) anterior->prox;
+		}
+                else {
+		    player->arma->shots = (bullet*) index->prox;
+		    bullet_destroi(index);
+		    index = player->arma->shots;
+		}
+		if (!inimigo->hp)
+		    return 1;
+		return 0;
+	    }
+            anterior = index;
+	}
+    return 0;
+}
+
+
+unsigned char matou_player_ini(player *player, inimigo *inimigo)
+{
+
+    if (colidiu_ini(player, inimigo)) {
+	player->hp--;
+	if (!player->hp)
+	    return 1;
+	player->colisao = 1;
+	return 0;
+    }
+    
+    if (!inimigo->arma)
+	return 0;
+
+    bullet *anterior = NULL;
+    for (bullet *index = inimigo->arma->shots; index != NULL;
+	index = (bullet*) index->prox) {
+        if ((((index->y - BULLET_TAM_Y/2 >= player->y - player->tam_y/2) &&
+	     (player->y + player->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
+	     ((player->y - player->tam_y/2 >= index->y - BULLET_TAM_Y/2) &&
+	    (index->y + BULLET_TAM_Y/2 >= player->y - player->tam_y/2))) &&
+	    (((index->x - BULLET_TAM_X/2 >= player->x - player->tam_x/2) &&
+             (player->x + player->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
+	     ((player->x - player->tam_x/2 >= index->x - BULLET_TAM_X/2) &&
+            (index->x + BULLET_TAM_X/2 >= player->x - player->tam_x/2)))) {
+
+		player->hp--;
+
+                if (anterior) {			
+		    anterior->prox = index->prox;
+		    bullet_destroi(index);
+		    index = (bullet*) anterior->prox;
+		}
+		else {
+		    inimigo->arma->shots = (bullet*) index->prox;
+		    bullet_destroi(index);
+		    index = inimigo->arma->shots;
+		}
+		
+		if (!player->hp)
+			return 1;
+		return 0;
+	}
+	anterior = index;
+    }
+    return 0;
+}
+
+
+unsigned char atualiza_boss(boss *boss, player *player, unsigned short time)
 {
     boss_move(boss, 1, X_TELA - boss->tam_x/2 - 150, Y_TELA - boss->tam_y/2,
 		boss->tam_y/2);
@@ -292,14 +383,43 @@ unsigned char atualiza_boss(boss *boss, player *player)
         boss->arma->timer--;
 
     if (boss->hp <= 10) {
-        if (!boss->canhao->timer) {
-            boss_especial(boss, player->y);
-	    boss->canhao->timer = CANHAO_COOLDOWN;
-	}
-	else
-            boss->canhao->timer--;
+        if (boss->tipo == BOSS1) {
+	    if (!boss->canhao->timer) {
+	        boss_especial(boss, player->y);
+	        boss->canhao->timer = CANHAO_COOLDOWN;
+	    }   
+	    else
+                boss->canhao->timer--;
 
-	movimenta_canhao_boss(boss);
+	    movimenta_canhao_boss(boss);
+        }
+	else {
+	    if (!boss->trooper)
+		boss->trooper = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, 
+			                  player->y, time);
+	    else {
+                if (boss->valid) {
+		    if (player->y > boss->trooper->y + boss->trooper->tam_y/2)
+                        boss->trooper->direcao = 2;
+                    else if (player->y < boss->trooper->y - boss->trooper->tam_y/2)
+                        boss->trooper->direcao = 1;
+                    else
+                        boss->trooper->direcao = 0;
+
+		    inimigo_move(boss->trooper, 1, -boss->trooper->tam_x/2,
+				    Y_TELA, &(boss->valid));
+		    if (boss->valid) {
+                        if (matou_inimigo(player, boss->trooper)) {
+			    inimigo_destroi(boss->trooper);
+			    boss->valid = 0;
+			}
+			if (boss->valid && !player->colisao && matou_player_ini(player,
+					       	boss->trooper))
+			    return 1;
+		    }
+		}
+	    }
+	}
     }
 
     movimenta_bullets_boss(boss);
@@ -310,92 +430,6 @@ unsigned char atualiza_boss(boss *boss, player *player)
     if (!player->colisao && matou_player_boss(player, boss))
 	return 1;
     
-    return 0;
-}
-
-
-unsigned char matou_inimigo(player *player, inimigo *inimigo)
-{
-
-    bullet *anterior = NULL;
-    for (bullet *index = player->arma->shots; index != NULL;
-                            index = (bullet*) index->prox) {
-        if ((((index->y - BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2) && 
-	     (inimigo->y + inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
-             ((inimigo->y - inimigo->tam_y/2 >= index->y - BULLET_TAM_Y/2) && 
-	    (index->y + BULLET_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2))) &&
-            (((index->x - BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2) && 
-	     (inimigo->x + inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
-             ((inimigo->x - inimigo->tam_x/2 >= index->x - BULLET_TAM_X/2) && 
-	     (index->x + BULLET_TAM_X/2 >= inimigo->x - inimigo->tam_x/2)))) {
-
-            inimigo->hp--;
-
-            if (anterior) {
-                anterior->prox = index->prox;
-                bullet_destroi(index);
-                index = (bullet*) anterior->prox;
-            }
-            else {
-                player->arma->shots = (bullet*) index->prox;
-                bullet_destroi(index);
-                index = player->arma->shots;
-            }
-            if (!inimigo->hp)
-                return 1;
-            return 0;
-        }
-        anterior = index;
-    }
-
-    return 0;
-}
-
-unsigned char matou_player_ini(player *player, inimigo *inimigo)
-{
-	
-    if (colidiu_ini(player, inimigo)) {
-        player->hp--;
-	if (!player->hp)
-	    return 1;
-	player->colisao = 1;
-	return 0;
-    }
-    
-    if (!inimigo->arma)
-        return 0;
-
-    bullet *anterior = NULL;
-    for (bullet *index = inimigo->arma->shots; index != NULL;
-                            index = (bullet*) index->prox) {
-        if ((((index->y - BULLET_TAM_Y/2 >= player->y - player->tam_y/2) && 
-	     (player->y + player->tam_y/2 >= index->y - BULLET_TAM_Y/2)) ||
-	     ((player->y - player->tam_y/2 >= index->y - BULLET_TAM_Y/2) && 
-	    (index->y + BULLET_TAM_Y/2 >= player->y - player->tam_y/2))) &&
-	    (((index->x - BULLET_TAM_X/2 >= player->x - player->tam_x/2) && 
-	     (player->x + player->tam_x/2 >= index->x - BULLET_TAM_X/2)) ||
- 	     ((player->x - player->tam_x/2 >= index->x - BULLET_TAM_X/2) && 
-	     (index->x + BULLET_TAM_X/2 >= player->x - player->tam_x/2)))) {
-
-            player->hp--;
-
-            if (anterior) {
-                anterior->prox = index->prox;
-                bullet_destroi(index);
-                index = (bullet*) anterior->prox;
-            }
-            else {
-                inimigo->arma->shots = (bullet*) index->prox;
-                bullet_destroi(index);
-                index = inimigo->arma->shots;
-            }
-
-            if (!player->hp)
-                return 1;
-            return 0;
-        }
-        anterior = index;
-    }
     return 0;
 }
 
@@ -479,7 +513,7 @@ int main()
     inimigos[3] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X, 
 		    Y_TELA - INIMIGO4_TAM_Y/2, FPS * SPAWN4);
 
-    boss* boss = boss_cria(BOSS1, X_TELA + BOSS1_TAM_X, Y_TELA/2, FPS * SPAWNBOSS);
+    boss* boss = boss_cria(BOSS2, X_TELA + BOSS2_TAM_X, Y_TELA/2, FPS * SPAWNBOSS2);
 
     if (!inimigos[0] || !inimigos[1] || !inimigos[2] || !inimigos[3])
 	return 1;
@@ -525,11 +559,11 @@ int main()
 	else if (!gameover && evento.type == 30) {
             time++;
 	    movimenta_player(player);
-	    if (time <= FPS * SPAWNBOSS)
+	    if (time <= FPS * SPAWNBOSS2)
 	        gameover = atualiza_inimigos
 			            (inimigos, ini_num, valid, time, player);
 	    else
-	        gameover = atualiza_boss(boss, player);
+	        gameover = atualiza_boss(boss, player, time);
 
 	    al_clear_to_color(al_map_rgb(0, 0, 0));
             if (!player->colisao)
@@ -597,14 +631,16 @@ int main()
                                          index->y + BULLET_TAM_Y/2,
                                          al_map_rgb(0, 255, 0));
 
-	    for (bullet *index = boss->canhao->shots; index != NULL;
-                        index = (bullet*) index->prox)
-                al_draw_filled_rectangle(index->x - CANHAO_TAM_X/2,
-                                         index->y - CANHAO_TAM_Y/2,
-                                         index->x + CANHAO_TAM_X/2,
-                                         index->y + CANHAO_TAM_Y/2,
-                                         al_map_rgb(255, 255, 255));
+	    if (boss->tipo == BOSS2) {
+		if (boss->trooper && boss->valid)
+                    al_draw_filled_rectangle(
+                                         boss->trooper->x - boss->trooper->tam_x/2,
+                                         boss->trooper->y - boss->trooper->tam_y/2,
+                                         boss->trooper->x + boss->trooper->tam_x/2,
+                                         boss->trooper->y + boss->trooper->tam_y/2,
+                                         al_map_rgb(255, 0, 0));
 
+	    }
 
 	    for (bullet *index = player->arma->shots; index != NULL; 
 	                index = (bullet*) index->prox)

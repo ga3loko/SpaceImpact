@@ -2,11 +2,16 @@
 #define __BOSS__
 
 #include "pistola.h"
+#include "inimigo.h"
 
 #define BOSS1_HP 20
 #define BOSS1_TAM_X 200
 #define BOSS1_TAM_Y 200
 #define BOSS1_VEL 2
+#define BOSS2_HP 30
+#define BOSS2_TAM_X 150
+#define BOSS2_TAM_Y 250
+#define BOSS2_VEL 3
 enum tipoBoss {
     BOSS1,
     BOSS2
@@ -22,6 +27,8 @@ typedef struct {
     unsigned short spawn;
     unsigned char direcao;
     unsigned char vel;
+    inimigo *trooper;
+    unsigned char valid;
     pistola *arma;
     pistola *canhao;
 } boss;
