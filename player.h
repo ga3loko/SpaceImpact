@@ -18,6 +18,7 @@ typedef struct {
     unsigned char tam_y;
     unsigned short x;
     unsigned short y;
+    unsigned short pontuacao;
     joystick *controle;
     pistola *arma;
 } player;

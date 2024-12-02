@@ -14,6 +14,7 @@ player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, 
     new_player->tam_y = tam_y;
     new_player->x = x;
     new_player->y = y;
+    new_player->pontuacao = 0;
     new_player->controle = joystick_cria();
     new_player->arma = pistola_cria();
     

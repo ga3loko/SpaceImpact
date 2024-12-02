@@ -4,7 +4,7 @@
 #include "pistola.h"
 
 #define INIMIGO1_HP 2
-#define INIMIGO1_VEL 5
+#define INIMIGO1_VEL 7
 #define INIMIGO1_TAM_X 40
 #define INIMIGO1_TAM_Y 40
 #define INIMIGO2_HP 3
@@ -12,7 +12,7 @@
 #define INIMIGO2_TAM_X 80
 #define INIMIGO2_TAM_Y 40
 #define INIMIGO3_HP 2
-#define INIMIGO3_VEL 3
+#define INIMIGO3_VEL 5
 #define INIMIGO3_TAM_X 40
 #define INIMIGO3_TAM_Y 40
 #define INIMIGO4_HP 3
