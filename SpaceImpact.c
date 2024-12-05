@@ -21,15 +21,40 @@
 #define SPAWN6_1 15
 #define SPAWN7_1 15
 #define SPAWN8_1 20
-#define SPAWN9_1 33
+#define SPAWN9_1 32
 #define SPAWN10_1 32
 #define SPAWN11_1 32
 #define SPAWN12_1 32
 #define SPAWN13_1 32
 #define SPAWN14_1 32
 #define SPAWN15_1 35
-#define SPAWNBOSS1 53
-#define SPAWNBOSS2 250
+#define SPAWN1_2 3
+#define SPAWN2_2 3
+#define SPAWN3_2 8
+#define SPAWN4_2 8
+#define SPAWN5_2 10
+#define SPAWN6_2 10
+#define SPAWN7_2 12
+#define SPAWN8_2 15
+#define SPAWN9_2 15
+#define SPAWN10_2 15
+#define SPAWN11_2 21
+#define SPAWN12_2 21
+#define SPAWN13_2 23
+#define SPAWN14_2 25
+#define SPAWN15_2 30
+#define SPAWN16_2 30
+#define SPAWN17_2 30
+#define SPAWN18_2 30
+#define SPAWN19_2 40
+#define SPAWN20_2 40
+#define SPAWN21_2 40
+#define SPAWN22_2 40
+#define SPAWN23_2 40
+#define SPAWN24_2 45
+#define SPAWN25_2 47
+#define SPAWNBOSS1 47
+#define SPAWNBOSS2 57
 #define GANHOU 2
 #define PERDEU 1
 #define INIMIGOS_FASE1 15
@@ -458,25 +483,102 @@ unsigned char atualiza_boss(boss *boss, player *player, unsigned short time)
 
 unsigned char inicializa_ini_fase1(inimigo **inimigos, size_t ini_num)
 {
-    inimigos[0] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, SPAWN1_1);
-    inimigos[1] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, Y_TELA/2, SPAWN2_1);
-    inimigos[2] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, Y_TELA/2, SPAWN3_1);
-    inimigos[3] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X, Y_TELA - INIMIGO4_TAM_Y/2, SPAWN4_1);
-    inimigos[4] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, INIMIGO2_TAM_Y, SPAWN5_1);
-    inimigos[5] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X, Y_TELA - INIMIGO4_TAM_Y/2, SPAWN6_1);
-    inimigos[6] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, Y_TELA - INIMIGO2_TAM_Y, SPAWN7_1);
-    inimigos[7] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, SPAWN8_1);
-    inimigos[8] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, Y_TELA/2, SPAWN9_1);
-    inimigos[9] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, Y_TELA - INIMIGO3_TAM_Y, SPAWN10_1);
-    inimigos[10] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2 - INIMIGO1_TAM_Y - 20, SPAWN11_1);
-    inimigos[11] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, SPAWN12_1);
-    inimigos[12] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2 + INIMIGO1_TAM_Y + 20, SPAWN13_1);
-    inimigos[13] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO1_TAM_X, INIMIGO2_TAM_Y, SPAWN14_1);
-    inimigos[14] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, Y_TELA/2, SPAWN15_1);
+    inimigos[0] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, 
+		    SPAWN1_1);
+    inimigos[1] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, Y_TELA/2, 
+		    SPAWN2_1);
+    inimigos[2] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, 
+		    SPAWN3_1);
+    inimigos[3] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, 
+		    Y_TELA - INIMIGO2_TAM_Y/2, SPAWN4_1);
+    inimigos[4] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2 + INIMIGO1_TAM_Y, SPAWN5_1);
+    inimigos[5] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2 - INIMIGO1_TAM_Y, SPAWN6_1);
+    inimigos[6] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, 
+		    Y_TELA - INIMIGO2_TAM_Y, SPAWN7_1);
+    inimigos[7] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2, SPAWN8_1);
+    inimigos[8] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2, SPAWN9_1);
+    inimigos[9] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, 
+		    Y_TELA - INIMIGO2_TAM_Y, SPAWN10_1);
+    inimigos[10] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2 - INIMIGO1_TAM_Y - 20, SPAWN11_1);
+    inimigos[11] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2, SPAWN12_1);
+    inimigos[12] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    Y_TELA/2 + INIMIGO1_TAM_Y + 20, SPAWN13_1);
+    inimigos[13] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X, 
+		    INIMIGO2_TAM_Y, SPAWN14_1);
+    inimigos[14] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, 
+		    INIMIGO1_TAM_X + 100, SPAWN15_1);
 
     for (size_t i = 0; i < ini_num; i++) {
         if (!inimigos[i])
 	    return 0;
+    }
+
+    return 1;
+}
+
+unsigned char inicializa_ini_fase2(inimigo **inimigos, size_t ini_num)
+{
+    inimigos[0] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, 
+		    Y_TELA/2, SPAWN1_2);
+    inimigos[1] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X, 
+		    Y_TELA - INIMIGO4_TAM_Y/2, SPAWN2_2);
+    inimigos[2] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X, 
+		    Y_TELA - INIMIGO3_TAM_Y, SPAWN3_2);
+    inimigos[3] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X,
+                    Y_TELA + INIMIGO3_TAM_Y/2, SPAWN4_2);
+    inimigos[4] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2 + INIMIGO1_TAM_Y, SPAWN5_2);
+    inimigos[5] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2 - INIMIGO1_TAM_Y, SPAWN6_2);
+    inimigos[6] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X,
+                    Y_TELA - INIMIGO3_TAM_Y, SPAWN7_2);
+    inimigos[7] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X,
+                    Y_TELA - INIMIGO4_TAM_Y/2, SPAWN8_2);
+    inimigos[8] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2, SPAWN9_2);
+    inimigos[9] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X,
+                    Y_TELA - INIMIGO2_TAM_Y, SPAWN10_2);
+    inimigos[10] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X,
+                    Y_TELA - INIMIGO4_TAM_Y/2, SPAWN11_2);
+    inimigos[11] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X,
+                    Y_TELA/2, SPAWN12_2);
+    inimigos[12] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2, SPAWN13_2);
+    inimigos[13] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X,
+                    INIMIGO2_TAM_Y, SPAWN14_2);
+    inimigos[14] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2, SPAWN15_2);
+    inimigos[15] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2 - INIMIGO1_TAM_Y - 50, SPAWN16_2);
+    inimigos[16] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2 + INIMIGO1_TAM_Y + 50, SPAWN17_2);
+    inimigos[17] = inimigo_cria(INIMIGO4, X_TELA + INIMIGO4_TAM_X,
+                    Y_TELA - INIMIGO4_TAM_Y/2, SPAWN18_2);
+    inimigos[18] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2, SPAWN19_2);
+    inimigos[19] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X,
+                    Y_TELA - INIMIGO2_TAM_Y, SPAWN20_2);
+    inimigos[20] = inimigo_cria(INIMIGO2, X_TELA + INIMIGO2_TAM_X,
+                    INIMIGO2_TAM_Y, SPAWN21_2);
+    inimigos[21] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2, SPAWN22_2);
+    inimigos[22] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X,
+                    Y_TELA/2 + INIMIGO3_TAM_Y + 20, SPAWN23_2);
+    inimigos[23] = inimigo_cria(INIMIGO3, X_TELA + INIMIGO3_TAM_X,
+                    Y_TELA/2 - INIMIGO3_TAM_Y - 20, SPAWN24_2);
+    inimigos[24] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X,
+                    Y_TELA/2, SPAWN25_2);
+
+
+    for (size_t i = 0; i < ini_num; i++) {
+        if (!inimigos[i])
+            return 0;
     }
 
     return 1;
@@ -526,10 +628,16 @@ unsigned char atualiza_inimigos(inimigo **inimigos, size_t ini_num, unsigned cha
     return 0;
 }
 
-void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, unsigned char *valid, unsigned short time, unsigned char *gameover, size_t ini_num)
+void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, unsigned char *valid, unsigned short time, unsigned char *gameover, size_t ini_num, unsigned char fase)
 {
     movimenta_player(player);
-    if (time <= FPS * SPAWNBOSS1)
+    unsigned short boss_fight;
+    if (fase == 1)
+        boss_fight = SPAWNBOSS1;
+    else
+	boss_fight = SPAWNBOSS2;
+
+    if (time <= FPS * boss_fight)
         *gameover = atualiza_inimigos
                              (inimigos, ini_num, valid, time, player);
     else
@@ -675,10 +783,7 @@ int main()
     botoes[0] = botao_cria(X_TELA/2, 300, "Jogar");
     botoes[1] = botao_cria(X_TELA/2, 450, "Sair");
 
-    player* player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, 100, Y_TELA/2);
-    if (!player) 
-	return 1;
-    
+    player* player;    
     size_t ini_num = 0;
     unsigned char valid_fase1[INIMIGOS_FASE1];
     inimigo *inimigos_fase1[INIMIGOS_FASE1];
@@ -687,6 +792,7 @@ int main()
     inimigo *inimigos_fase2[INIMIGOS_FASE2];
     boss *boss_fase2;
 
+    unsigned short pontos = 0;
     unsigned short time = 0;
     unsigned char gameover = 0;
     unsigned char game = 0;
@@ -721,10 +827,10 @@ int main()
             al_draw_text(font, al_map_rgb(255, 0, 0), X_TELA/2 - 50, 
 		          Y_TELA/2 - 15, 0, "VOCÊ MORREU!");
             al_draw_text(font, al_map_rgb(255, 255, 255), X_TELA/2 - 110, 
-       			  Y_TELA/2 + 5, 0, "PRESSIONE ESPAÇO PARA SAIR");
+       			  Y_TELA/2 + 5, 0, "PRESSIONE ENTER PARA SAIR");
             al_flip_display();
             if ((evento.type == ALLEGRO_EVENT_KEY_DOWN) && 
-		      (evento.keyboard.keycode == ALLEGRO_KEY_SPACE))
+		      (evento.keyboard.keycode == ALLEGRO_KEY_ENTER))
                 break;
             else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
                 break;
@@ -734,19 +840,23 @@ int main()
             al_draw_text(font, al_map_rgb(0, 255, 0), X_TELA/2 - 50,
                                 Y_TELA/2 - 15, 0, "VOCÊ GANHOU!");
 	    al_draw_textf(font, al_map_rgb(255, 255, 255), X_TELA/2 - 60,
-				Y_TELA/2 + 5, 0, "PONTUAÇAO: %d", player->pontuacao);
+				Y_TELA/2 + 5, 0, "PONTUAÇAO: %d", 
+				pontos);
             if (game == 1)
 	        al_draw_text(font, al_map_rgb(255, 255, 255), X_TELA/2 - 120,
-                                Y_TELA/2 + 30, 0, "PRESSIONE ESPAÇO PARA CONTINUAR");
+                                Y_TELA/2 + 30, 0, 
+				"PRESSIONE ENTER PARA CONTINUAR");
 	    else 
 		al_draw_text(font, al_map_rgb(255, 255, 255), X_TELA/2 - 110,
-                                Y_TELA/2 + 30, 0, "PRESSIONE ESPAÇO PARA SAIR");
+                                Y_TELA/2 + 30, 0, "PRESSIONE ENTER PARA SAIR");
             al_flip_display();
             if ((evento.type == ALLEGRO_EVENT_KEY_DOWN) &&
-                (evento.keyboard.keycode == ALLEGRO_KEY_SPACE))
+                (evento.keyboard.keycode == ALLEGRO_KEY_ENTER))
                 if (game == 1) {
+		    pontos += player->pontuacao;
+		    player_destroi(player);
+		    player = NULL;
 		    game = 2;
-		    player->hp = PLAYER_HP;
 		    time = 0;
 		    gameover = 0;
 		}
@@ -758,8 +868,12 @@ int main()
 	else if (menu)
 	    atualiza_menu(botoes, botao_num, font);
 	else if (game == 1 && !ini_num) {
+            player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X, 
+			    Y_TELA/2);
+	    if (!player)
+		return 1;
 	    
-            ini_num = INIMIGOS_FASE1;
+	    ini_num = INIMIGOS_FASE1;
 
 	    for (size_t i = 0; i < ini_num; i++)
 		valid_fase1[i] = 1;
@@ -767,23 +881,46 @@ int main()
 	    if (!inicializa_ini_fase1(inimigos_fase1, ini_num))
 		return 1;
 
-	    boss_fase1 = boss_cria(BOSS1, X_TELA + BOSS1_TAM_X, Y_TELA/2, SPAWNBOSS1);
+	    boss_fase1 = boss_cria(BOSS1, X_TELA + BOSS1_TAM_X, Y_TELA/2, 
+			    SPAWNBOSS1);
 
 	    if (!boss_fase1)
 		return 1;
 
 	}
 	else if (game == 2 && ini_num == INIMIGOS_FASE1) {
-            break;
+            player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X,
+			    Y_TELA/2);
+	    if (!player)
+		return 1;
+
+	    ini_num = INIMIGOS_FASE2;
+
+	    for (size_t i = 0; i < ini_num; i++)
+                valid_fase2[i] = 1;
+
+            if (!inicializa_ini_fase2(inimigos_fase2, ini_num))
+                return 1;
+
+            boss_fase2 = boss_cria(BOSS2, X_TELA + BOSS2_TAM_X, Y_TELA/2,
+                            SPAWNBOSS2);
+
+            if (!boss_fase2)
+                return 1;
+
 	}
 	else if (!gameover && game && evento.type == ALLEGRO_EVENT_TIMER) {
             time++;
 	    switch (game) {
                 case 1:
-	            atualiza_jogo(player, inimigos_fase1, boss_fase1, valid_fase1, time, &gameover, ini_num);
+	            atualiza_jogo(player, inimigos_fase1, boss_fase1, 
+				    valid_fase1, time, &gameover, ini_num, 
+				    game);
                     break;
 		case 2:
-		    atualiza_jogo(player, inimigos_fase2, boss_fase2, valid_fase2, time, &gameover, ini_num);
+		    atualiza_jogo(player, inimigos_fase2, boss_fase2, 
+				    valid_fase2, time, &gameover, ini_num,
+				    game);
                     break;
 		default:
 		    break;
@@ -821,6 +958,8 @@ int main()
         }
         if (boss_fase1)
             boss_destroi(boss_fase1);
+
+        player_destroi(player);
     }
     else if (game == 2) {
         for (size_t i = 0; i < ini_num; i++) {
@@ -829,16 +968,16 @@ int main()
         }
         if (boss_fase2)
             boss_destroi(boss_fase2);
+
+	player_destroi(player);
     }
-    else {
-        for (size_t i = 0; i < botao_num; i++)
-	    botao_destroi(botoes[i]);
-    }
+    for (size_t i = 0; i < botao_num; i++)
+        botao_destroi(botoes[i]);
+
     al_destroy_font(font);
     al_destroy_display(tela);
     al_destroy_timer(relogio);
     al_destroy_event_queue(fila);
-    player_destroi(player);
 
     return 0;
 

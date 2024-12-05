@@ -16,7 +16,7 @@
 #define INIMIGO3_TAM_X 40
 #define INIMIGO3_TAM_Y 40
 #define INIMIGO4_HP 3
-#define INIMIGO4_VEL 1
+#define INIMIGO4_VEL 3
 #define INIMIGO4_TAM_X 40
 #define INIMIGO4_TAM_Y 100
 enum tipoInimigo {
