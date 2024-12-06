@@ -3,6 +3,7 @@
 
 #include "joystick.h"
 #include "pistola.h"
+#include "powerup.h"
 
 #define PLAYER_HP 3
 #define PLAYER_VEL 7
@@ -19,6 +20,7 @@ typedef struct {
     unsigned short x;
     unsigned short y;
     unsigned short pontuacao;
+    enum tipoPower powerup;
     joystick *controle;
     pistola *arma;
 } player;

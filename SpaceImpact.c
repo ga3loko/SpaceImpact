@@ -9,6 +9,7 @@
 #include "inimigo.h"
 #include "boss.h"
 #include "botao.h"
+#include "powerup.h"
 
 #define X_TELA 1080
 #define Y_TELA 720
@@ -55,6 +56,11 @@
 #define SPAWN25_2 47
 #define SPAWNBOSS1 47
 #define SPAWNBOSS2 57
+#define SPAWNPU1_1 12
+#define SPAWNPU2_1 27
+#define SPAWNPU1_2 17
+#define SPAWNPU2_2 35
+#define PU_NUM 2
 #define GANHOU 2
 #define PERDEU 1
 #define INIMIGOS_FASE1 15
@@ -169,6 +175,20 @@ unsigned char colidiu_ini(player* player, inimigo *inimigo)
          ((inimigo->x - inimigo->tam_x/2 >= player->x - player->tam_x/2) && 
 	  (player->x + player->tam_x/2 >= inimigo->x - inimigo->tam_x/2)))) 
 	return 1;
+    return 0;
+}
+
+unsigned char colidiu_powerup(powerup* powerup, player *player)
+{
+    if ((((player->y - player->tam_y/2 >= powerup->y - POWERUP_R) &&
+         (powerup->y + POWERUP_R >= player->y - player->tam_y/2)) ||
+         ((powerup->y - POWERUP_R >= player->y - player->tam_y/2) &&
+        (player->y + player->tam_y/2 >= powerup->y - POWERUP_R))) &&
+        (((player->x - player->tam_y/2 >= powerup->x - POWERUP_R) &&
+         (powerup->x + POWERUP_R >= player->x - player->tam_x/2)) ||
+         ((powerup->x - POWERUP_R >= player->x - player->tam_x/2) &&
+          (player->x + player->tam_x/2 >= powerup->x - POWERUP_R))))
+        return 1;
     return 0;
 }
 
@@ -481,6 +501,32 @@ unsigned char atualiza_boss(boss *boss, player *player, unsigned short time)
     return 0;
 }
 
+unsigned char inicializa_powerups(powerup **powerups, unsigned char fase)
+{
+
+    switch (fase) {
+        case 1:
+            powerups[0] = powerup_cria(PU1, X_TELA + POWERUP_R*2,
+                            Y_TELA/2, SPAWNPU1_1);
+            powerups[1] = powerup_cria(PU1, X_TELA + POWERUP_R*2,
+                            Y_TELA/2, SPAWNPU2_1);
+	    break;
+	case 2:
+	    powerups[0] = powerup_cria(PU2, X_TELA + POWERUP_R*2,
+                            Y_TELA/2, SPAWNPU1_2);
+            powerups[1] = powerup_cria(PU2, X_TELA + POWERUP_R*2,
+                            Y_TELA/2, SPAWNPU2_2);
+    }
+
+    for (size_t i = 0; i < PU_NUM; i++) {
+        if (!powerups[i])
+	    return 0;
+    }
+
+    return 1;
+
+}
+
 unsigned char inicializa_ini_fase1(inimigo **inimigos, size_t ini_num)
 {
     inimigos[0] = inimigo_cria(INIMIGO1, X_TELA + INIMIGO1_TAM_X, Y_TELA/2, 
@@ -628,10 +674,27 @@ unsigned char atualiza_inimigos(inimigo **inimigos, size_t ini_num, unsigned cha
     return 0;
 }
 
-void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, unsigned char *valid, unsigned short time, unsigned char *gameover, size_t ini_num, unsigned char fase)
+void atualiza_powerup(powerup **powerups, player *player, unsigned short time, unsigned char *valid)
+{
+
+    for (size_t i = 0; i < PU_NUM; i++) {
+        if (valid[i] && time >= FPS * powerups[i]->spawn)
+            powerup_move(powerups[i], &valid[i]);
+ 
+	if(valid[i] && colidiu_powerup(powerups[i], player)) {
+            player->powerup = powerups[i]->tipo;
+	    powerup_destroi(powerups[i]);
+	    valid[i] = 0;
+        }
+    }
+
+}
+
+void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **powerups, unsigned char *valid, unsigned char *valid_pu, unsigned short time, unsigned char *gameover, size_t ini_num, unsigned char fase)
 {
     movimenta_player(player);
     unsigned short boss_fight;
+
     if (fase == 1)
         boss_fight = SPAWNBOSS1;
     else
@@ -643,7 +706,10 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, unsigned char
     else
         *gameover = atualiza_boss(boss, player, time);
 
+    atualiza_powerup(powerups, player, time, valid_pu);
+
     al_clear_to_color(al_map_rgb(0, 0, 0));
+    
     if (!player->colisao)
         al_draw_filled_rectangle(player->x - player->tam_x/2,
                                  player->y - player->tam_y/2,
@@ -731,6 +797,11 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, unsigned char
 	default:
 	    break;
     }
+    for (size_t i = 0; i < PU_NUM; i++) {
+        if (valid_pu[i])
+            al_draw_filled_circle(powerups[i]->x, powerups[i]->y, POWERUP_R,
+			            al_map_rgb(0, 255, 255));
+    }
 
     for (bullet *index = player->arma->shots; index != NULL;
                     index = (bullet*) index->prox)
@@ -783,16 +854,20 @@ int main()
     botoes[0] = botao_cria(X_TELA/2, 300, "Jogar");
     botoes[1] = botao_cria(X_TELA/2, 450, "Sair");
 
-    player* player;    
+    player* player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X,
+                            Y_TELA/2);    
     size_t ini_num = 0;
     unsigned char valid_fase1[INIMIGOS_FASE1];
     inimigo *inimigos_fase1[INIMIGOS_FASE1];
+    powerup *powerups_fase1[PU_NUM];
+    unsigned char valid_pu_fase1[PU_NUM];
     boss *boss_fase1;
     unsigned char valid_fase2[INIMIGOS_FASE2];
     inimigo *inimigos_fase2[INIMIGOS_FASE2];
+    powerup *powerups_fase2[PU_NUM];
+    unsigned char valid_pu_fase2[PU_NUM];
     boss *boss_fase2;
 
-    unsigned short pontos = 0;
     unsigned short time = 0;
     unsigned char gameover = 0;
     unsigned char game = 0;
@@ -836,12 +911,13 @@ int main()
                 break;
         }
         else if (gameover == GANHOU) {
-            al_clear_to_color(al_map_rgb(0, 0, 0));
+	    
+	    al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_text(font, al_map_rgb(0, 255, 0), X_TELA/2 - 50,
                                 Y_TELA/2 - 15, 0, "VOCÊ GANHOU!");
 	    al_draw_textf(font, al_map_rgb(255, 255, 255), X_TELA/2 - 60,
 				Y_TELA/2 + 5, 0, "PONTUAÇAO: %d", 
-				pontos);
+				player->pontuacao);
             if (game == 1)
 	        al_draw_text(font, al_map_rgb(255, 255, 255), X_TELA/2 - 120,
                                 Y_TELA/2 + 30, 0, 
@@ -853,9 +929,17 @@ int main()
             if ((evento.type == ALLEGRO_EVENT_KEY_DOWN) &&
                 (evento.keyboard.keycode == ALLEGRO_KEY_ENTER))
                 if (game == 1) {
-		    pontos += player->pontuacao;
-		    player_destroi(player);
-		    player = NULL;
+		    player->hp = PLAYER_HP;
+		    player->controle->esq = 0;
+		    player->controle->dir = 0;
+                    player->controle->cima = 0;
+		    player->controle->baixo= 0;
+		    player->controle->atira = 0;
+		    player->x = PLAYER_TAM_X;
+		    player->y = Y_TELA/2;
+		    player->powerup = NO_PU;
+		    pistola_destroi(player->arma);
+		    player->arma = pistola_cria();
 		    game = 2;
 		    time = 0;
 		    gameover = 0;
@@ -868,17 +952,19 @@ int main()
 	else if (menu)
 	    atualiza_menu(botoes, botao_num, font);
 	else if (game == 1 && !ini_num) {
-            player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X, 
-			    Y_TELA/2);
-	    if (!player)
-		return 1;
 	    
 	    ini_num = INIMIGOS_FASE1;
 
 	    for (size_t i = 0; i < ini_num; i++)
 		valid_fase1[i] = 1;
-            
+
+	    for (size_t i = 0; i < PU_NUM; i++)
+		valid_pu_fase1[i] = 1;
+
 	    if (!inicializa_ini_fase1(inimigos_fase1, ini_num))
+		return 1;
+
+            if (!inicializa_powerups(powerups_fase1, game))
 		return 1;
 
 	    boss_fase1 = boss_cria(BOSS1, X_TELA + BOSS1_TAM_X, Y_TELA/2, 
@@ -889,18 +975,20 @@ int main()
 
 	}
 	else if (game == 2 && ini_num == INIMIGOS_FASE1) {
-            player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X,
-			    Y_TELA/2);
-	    if (!player)
-		return 1;
 
 	    ini_num = INIMIGOS_FASE2;
 
 	    for (size_t i = 0; i < ini_num; i++)
                 valid_fase2[i] = 1;
 
+	    for (size_t i = 0; i < PU_NUM; i++)
+	        valid_pu_fase2[i] = 1;
+
             if (!inicializa_ini_fase2(inimigos_fase2, ini_num))
                 return 1;
+
+            if (!inicializa_powerups(powerups_fase2, game))
+		return 1;
 
             boss_fase2 = boss_cria(BOSS2, X_TELA + BOSS2_TAM_X, Y_TELA/2,
                             SPAWNBOSS2);
@@ -913,14 +1001,14 @@ int main()
             time++;
 	    switch (game) {
                 case 1:
-	            atualiza_jogo(player, inimigos_fase1, boss_fase1, 
-				    valid_fase1, time, &gameover, ini_num, 
-				    game);
+	            atualiza_jogo(player, inimigos_fase1, boss_fase1,
+				    powerups_fase1, valid_fase1, valid_pu_fase1
+				    , time, &gameover, ini_num, game);
                     break;
 		case 2:
 		    atualiza_jogo(player, inimigos_fase2, boss_fase2, 
-				    valid_fase2, time, &gameover, ini_num,
-				    game);
+				    powerups_fase2, valid_fase2, valid_pu_fase2
+				    , time, &gameover, ini_num, game);
                     break;
 		default:
 		    break;
@@ -959,6 +1047,11 @@ int main()
         if (boss_fase1)
             boss_destroi(boss_fase1);
 
+	for (size_t i = 0; i < PU_NUM; i++) {
+            if (valid_pu_fase1[i])
+		powerup_destroi(powerups_fase1[i]);
+	}
+
         player_destroi(player);
     }
     else if (game == 2) {
@@ -968,6 +1061,11 @@ int main()
         }
         if (boss_fase2)
             boss_destroi(boss_fase2);
+
+        for (size_t i = 0; i < PU_NUM; i++) {
+            if (valid_pu_fase2[i])
+                powerup_destroi(powerups_fase2[i]);
+        }
 
 	player_destroi(player);
     }
