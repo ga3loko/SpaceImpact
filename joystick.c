@@ -12,7 +12,8 @@ joystick* joystick_cria()
     new_joystick->cima = 0;
     new_joystick->baixo = 0;
     new_joystick->atira = 0;
-    
+    new_joystick->especial = 0;
+
     return new_joystick;
 
 }
@@ -45,4 +46,9 @@ void joystick_baixo(joystick *joystick)
 void joystick_atira(joystick *joystick)
 {
     joystick->atira = joystick->atira ^ 1;
+}
+
+void joystick_especial(joystick *joystick)
+{
+    joystick->especial = joystick->especial ^ 1;
 }

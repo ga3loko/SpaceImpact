@@ -23,6 +23,7 @@ typedef struct {
     enum tipoPower powerup;
     joystick *controle;
     pistola *arma;
+    pistola *canhao;
 } player;
 
 player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, unsigned short y);
@@ -30,6 +31,8 @@ player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, 
 void player_move(player *player, unsigned char passo, unsigned char direcao, unsigned short max_x, unsigned short max_y);
 
 void player_atira(player *player);
+
+void player_especial(player *player);
 
 void player_destroi(player *player);
 

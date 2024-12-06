@@ -6,9 +6,6 @@
 bullet* bullet_cria(unsigned short x, short y, unsigned char trajetoria, bullet* prox)
 {
 
-    if (trajetoria > 2) 
-	return NULL;
-
     bullet *new_bullet = (bullet*) malloc(sizeof(bullet));
     if (new_bullet == NULL)
         return NULL;

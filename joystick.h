@@ -7,6 +7,7 @@ typedef struct {
     unsigned char cima;
     unsigned char baixo;
     unsigned char atira;
+    unsigned char especial;
 } joystick;
 
 joystick* joystick_cria();
@@ -16,5 +17,6 @@ void joystick_esq(joystick *joystick);
 void joystick_cima(joystick *joystick);
 void joystick_baixo(joystick *joystick);
 void joystick_atira(joystick *joystick);
+void joystick_especial(joystick *joystick);
 
 #endif

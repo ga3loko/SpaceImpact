@@ -18,6 +18,7 @@ player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, 
     new_player->powerup = NO_PU;
     new_player->controle = joystick_cria();
     new_player->arma = pistola_cria();
+    new_player->canhao = pistola_cria();
     
     return new_player;
 
@@ -59,9 +60,33 @@ void player_atira(player *player)
 	player->arma->shots = shot;
 }
 
+void player_especial(player *player)
+{
+
+    bullet *shot;
+    
+    switch (player->powerup) {
+	case PU1:
+            shot = pistola_atira(player->x + player->tam_x/2, player->y, 3,
+			    player->canhao);
+	    break;
+	case PU2:
+	    shot = pistola_atira(player->x + player->tam_x/2, player->y, 1,
+			    player->canhao);
+	    break;
+	default:
+	    break;
+    }
+
+    if (shot)
+	player->canhao->shots = shot;
+
+}
+
 void player_destroi(player *player)
 {
     pistola_destroi(player->arma);
+    pistola_destroi(player->canhao);
     joystick_destroi(player->controle);
     free(player);
 }

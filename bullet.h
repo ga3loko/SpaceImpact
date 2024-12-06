@@ -6,6 +6,7 @@
 #define BULLET_TAM_Y 20
 #define CANHAO_TAM_X 20
 #define CANHAO_TAM_Y 300
+#define CANHAO_PU1_TAM_Y 20
 
 typedef struct {
     unsigned short x;
