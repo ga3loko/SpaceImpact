@@ -9,6 +9,10 @@
 #define CANHAO_PU1_TAM_Y 20
 #define CANHAO_PU2_R1 20
 #define CANHAO_PU2_R2 75
+#define BALA_ESQ 0
+#define BALA_DIR 1
+#define BALA_BAIXO 2
+#define BALA_PARADA 3
 
 typedef struct {
     unsigned short x;

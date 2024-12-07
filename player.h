@@ -30,7 +30,7 @@ typedef struct {
 
 player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, unsigned short y);
 
-void player_move(player *player, unsigned char passo, unsigned char direcao, unsigned short max_x, unsigned short max_y);
+void player_move(player *player, unsigned char direcao, unsigned short max_x, unsigned short max_y);
 
 void player_atira(player *player);
 

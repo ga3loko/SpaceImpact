@@ -44,7 +44,7 @@ inimigo* inimigo_cria(enum tipoInimigo tipo, unsigned short x, unsigned short y,
 
 void inimigo_destroi(inimigo *inimigo);
 
-void inimigo_move(inimigo *inimigo, unsigned char passo, short min_x, unsigned short max_y, unsigned char *valid);
+void inimigo_move(inimigo *inimigo, short min_x, unsigned short max_y, unsigned char *valid);
 
 void inimigo_atira(inimigo *inimigo, unsigned short x);
 

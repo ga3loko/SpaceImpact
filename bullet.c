@@ -22,13 +22,13 @@ bullet* bullet_cria(unsigned short x, short y, unsigned char trajetoria, bullet*
 void bullet_move(bullet *bullet)
 {
     switch (bullet->trajetoria) {
-	case 0:
+	case BALA_ESQ:
 	    bullet->x -= BULLET_VEL;
 	    break;
-	case 1:
+	case BALA_DIR:
 	    bullet->x += BULLET_VEL;
 	    break;
-	case 2:
+	case BALA_BAIXO:
 	    bullet->y += BULLET_VEL;
 	    break;
 	default:
