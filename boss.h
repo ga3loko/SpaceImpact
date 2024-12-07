@@ -9,8 +9,8 @@
 #define BOSS1_TAM_Y 200
 #define BOSS1_VEL 2
 #define BOSS2_HP 30
-#define BOSS2_TAM_X 150
-#define BOSS2_TAM_Y 250
+#define BOSS2_TAM_X 250
+#define BOSS2_TAM_Y 150
 #define BOSS2_VEL 3
 enum tipoBoss {
     BOSS1,

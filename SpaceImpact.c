@@ -4,6 +4,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
 
 #include "player.h"
 #include "inimigo.h"
@@ -13,6 +14,7 @@
 
 #define X_TELA 1080
 #define Y_TELA 720
+#define BG_VEL 3
 #define FPS 30
 #define SPAWN1_1 2
 #define SPAWN2_1 4
@@ -945,27 +947,158 @@ void atualiza_powerup(powerup **powerups, player *player, unsigned short time, u
 
 }
 
-void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **powerups, unsigned char *valid, unsigned char *valid_pu, unsigned short time, unsigned char *gameover, size_t ini_num, unsigned char fase)
+void atualiza_tela(player *player, inimigo **inimigos, boss *boss, powerup **powerups, unsigned char *valid, unsigned char *valid_pu, size_t ini_num, ALLEGRO_BITMAP *inimigo1)
+{
+    if (!player->colisao)
+        al_draw_filled_rectangle(player->x - player->tam_x/2,
+                                 player->y - player->tam_y/2,
+                                 player->x + player->tam_x/2,
+                                 player->y + player->tam_y/2,
+                                 al_map_rgb(0, 0, 255));
+
+    else {
+        if ((player->timer_colisao % 15) <= 7)
+            al_draw_filled_rectangle(player->x - player->tam_x/2,
+                                     player->y - player->tam_y/2,
+                                     player->x + player->tam_x/2,
+                                     player->y + player->tam_y/2,
+                                     al_map_rgb(0, 0, 255));
+        player->timer_colisao--;
+
+        if (!player->timer_colisao)
+            player->colisao = 0;
+    }
+    
+    for (size_t i = 0; i < ini_num; i++) {
+        if (valid[i]) {
+            switch (inimigos[i]->tipo) {
+                case INIMIGO1:
+                    al_draw_bitmap(inimigo1, 
+				   inimigos[i]->x - inimigos[i]->tam_x/2, 
+				   inimigos[i]->y - inimigos[i]->tam_y/2, 0);
+                    break;
+                default:
+                    al_draw_filled_rectangle(
+                                 inimigos[i]->x - inimigos[i]->tam_x/2,
+                                 inimigos[i]->y - inimigos[i]->tam_y/2,
+                                 inimigos[i]->x + inimigos[i]->tam_x/2,
+                                 inimigos[i]->y + inimigos[i]->tam_y/2,
+                                 al_map_rgb(255, 0, 0));
+                    break;
+            }
+            if (inimigos[i]->arma != NULL) {
+                for (bullet *index = inimigos[i]->arma->shots;
+                     index != NULL; index = (bullet*) index->prox) {
+
+                    if (inimigos[i]->tipo == INIMIGO4)
+                        al_draw_filled_rectangle(
+                                             index->x - BULLET_TAM_Y/2,
+                                             index->y - BULLET_TAM_X/2,
+                                             index->x + BULLET_TAM_Y/2,
+                                             index->y + BULLET_TAM_X/2,
+                                             al_map_rgb(255, 255, 0));
+                    else
+                        al_draw_filled_rectangle(
+                                             index->x - BULLET_TAM_X/2,
+                                             index->y - BULLET_TAM_Y/2,
+                                             index->x + BULLET_TAM_X/2,
+                                             index->y + BULLET_TAM_Y/2,
+                                             al_map_rgb(255, 255, 0));
+                }
+            }
+        }
+    }
+
+    al_draw_filled_rectangle(boss->x - boss->tam_x/2,
+                             boss->y - boss->tam_y/2,
+                             boss->x + boss->tam_x/2,
+                             boss->y + boss->tam_y/2,
+                             al_map_rgb(100, 100, 100));
+
+    for (bullet *index = boss->arma->shots; index != NULL;
+                    index = (bullet*) index->prox)
+        al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
+                                 index->y - BULLET_TAM_Y/2,
+                                 index->x + BULLET_TAM_X/2,
+                                 index->y + BULLET_TAM_Y/2,
+                                 al_map_rgb(0, 255, 0));
+
+    bullet *index = player->canhao->shots;
+    if (index) {
+        switch (player->powerup) {
+            case PU1:
+                al_draw_filled_rectangle(index->x,
+                                         index->y - CANHAO_PU1_TAM_Y/2,
+                                         X_TELA,
+                                         index->y + CANHAO_PU1_TAM_Y/2,
+                                         al_map_rgb(255, 255, 0));
+                break;
+            case PU2:
+                if (!player->canhao->detonou)
+                    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R1,
+                                al_map_rgb(0, 255, 0));
+                else
+                    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R2,
+                                al_map_rgb(0, 255, 0));
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    switch (boss->tipo) {
+        case BOSS1:
+            for (bullet *index = boss->canhao->shots; index != NULL;
+                    index = (bullet*) index->prox)
+            al_draw_filled_rectangle(index->x - CANHAO_TAM_X/2,
+                                     index->y - CANHAO_TAM_Y/2,
+                                     index->x + CANHAO_TAM_X/2,
+                                     index->y + CANHAO_TAM_Y/2,
+                                     al_map_rgb(0, 255, 0));
+            break;
+        case BOSS2:
+            if (boss->trooper && boss->valid)
+                al_draw_filled_rectangle(
+                             boss->trooper->x - boss->trooper->tam_x/2,
+                             boss->trooper->y - boss->trooper->tam_y/2,
+                             boss->trooper->x + boss->trooper->tam_x/2,
+                             boss->trooper->y + boss->trooper->tam_y/2,
+                             al_map_rgb(255, 0, 0));
+            break;
+        default:
+            break;
+    }
+    for (size_t i = 0; i < PU_NUM; i++) {
+        if (valid_pu[i])
+            al_draw_filled_circle(powerups[i]->x, powerups[i]->y, POWERUP_R,
+                                    al_map_rgb(0, 255, 255));
+    }
+    for (bullet *index = player->arma->shots; index != NULL;
+                    index = (bullet*) index->prox)
+        al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
+                                 index->y - BULLET_TAM_Y/2,
+                                 index->x + BULLET_TAM_X/2,
+                                 index->y + BULLET_TAM_Y/2,
+                                 al_map_rgb(0, 255, 0));
+
+    al_flip_display();
+
+}
+
+void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **powerups, unsigned char *valid, unsigned char *valid_pu, unsigned short time, unsigned char *gameover, size_t ini_num)
 {
     movimenta_player(player);
-    unsigned short boss_fight;
 
-    if (fase == 1)
-        boss_fight = SPAWNBOSS1;
-    else
-	boss_fight = SPAWNBOSS2;
-
-    if (time <= FPS * boss_fight)
+    if (time <= FPS * boss->spawn)
         *gameover = atualiza_inimigos
                              (inimigos, ini_num, valid, time, player);
     else
         *gameover = atualiza_boss(boss, player, time);
 
     atualiza_powerup(powerups, player, time, valid_pu);
-
-    al_clear_to_color(al_map_rgb(0, 0, 0));
     
-    if (!player->colisao)
+/*    if (!player->colisao)
         al_draw_filled_rectangle(player->x - player->tam_x/2,
                                  player->y - player->tam_y/2,
                                  player->x + player->tam_x/2,
@@ -987,12 +1120,19 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **pow
 
     for (size_t i = 0; i < ini_num; i++) {
         if (valid[i]) {
-            al_draw_filled_rectangle(
+            switch (inimigos[i]->tipo) {
+                case INIMIGO1:
+		    al_draw_bitmap(inimigo1, inimigos[i]->x, inimigos[i]->y, 0);
+		    break;
+		default:
+		    al_draw_filled_rectangle(
                                  inimigos[i]->x - inimigos[i]->tam_x/2,
                                  inimigos[i]->y - inimigos[i]->tam_y/2,
                                  inimigos[i]->x + inimigos[i]->tam_x/2,
                                  inimigos[i]->y + inimigos[i]->tam_y/2,
                                  al_map_rgb(255, 0, 0));
+		    break;
+	    }
             if (inimigos[i]->arma != NULL) {
                 for (bullet *index = inimigos[i]->arma->shots;
                      index != NULL; index = (bullet*) index->prox) {
@@ -1080,7 +1220,6 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **pow
             al_draw_filled_circle(powerups[i]->x, powerups[i]->y, POWERUP_R,
 			            al_map_rgb(0, 255, 255));
     }
-    printf("BOSS VIDA: %d\n", boss->hp);
     for (bullet *index = player->arma->shots; index != NULL;
                     index = (bullet*) index->prox)
         al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
@@ -1089,7 +1228,7 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **pow
                                  index->y + BULLET_TAM_Y/2,
                                  al_map_rgb(0, 255, 0));
 
-    al_flip_display();
+    al_flip_display();*/
 }
 
 void atualiza_menu(botao **botoes, unsigned char botao_num, ALLEGRO_FONT* font)
@@ -1115,11 +1254,15 @@ int main()
     al_install_mouse();
     al_init_primitives_addon();
     al_init_ttf_addon();
+    al_init_image_addon();
 
     ALLEGRO_TIMER* relogio = al_create_timer(1.0 / FPS);
     ALLEGRO_EVENT_QUEUE* fila = al_create_event_queue();
     ALLEGRO_FONT* font = al_create_builtin_font();
     ALLEGRO_DISPLAY* tela = al_create_display(X_TELA, Y_TELA);
+    ALLEGRO_BITMAP *background1 = al_load_bitmap("Imagens/back1.png");
+    ALLEGRO_BITMAP *background2 = al_load_bitmap("Imagens/back2.png");
+    ALLEGRO_BITMAP *inimigo1 = al_load_bitmap("Imagens/inimigo1.png");
 
     al_register_event_source(fila, al_get_keyboard_event_source());
     al_register_event_source(fila, al_get_display_event_source(tela));
@@ -1134,7 +1277,7 @@ int main()
 
     player* player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X,
                             Y_TELA/2);    
-    size_t ini_num = INIMIGOS_FASE1;
+    size_t ini_num = 0;
     unsigned char valid_fase1[INIMIGOS_FASE1];
     inimigo *inimigos_fase1[INIMIGOS_FASE1];
     powerup *powerups_fase1[PU_NUM];
@@ -1151,6 +1294,9 @@ int main()
     unsigned char game = 0;
     unsigned char menu = 1;
 
+    unsigned short bg_X = al_get_bitmap_width(background1);
+    short bg_offset = 0;
+
     ALLEGRO_EVENT evento;
     al_start_timer(relogio);
 
@@ -1165,7 +1311,7 @@ int main()
                 if (botao_click(botoes[i], evento.mouse.x, evento.mouse.y)) {
                     if (strcmp(botoes[i]->comando, "Jogar") == 0) {
 		        menu = 0;
-			game = 2;
+			game = 1;
 		    }
 		    else if (strcmp(botoes[i]->comando, "Sair") == 0)
 			saiu = 1;
@@ -1231,8 +1377,11 @@ int main()
                     }
                     player->canhao->shots = NULL;
 		    game = 2;
+		    bg_offset = 0;
 		    time = 0;
 		    gameover = 0;
+		    al_destroy_bitmap(background1);
+		    background1 = NULL;
 		}
 	        else
 		    break;
@@ -1289,20 +1438,34 @@ int main()
 	}
 	else if (!gameover && game && evento.type == ALLEGRO_EVENT_TIMER) {
             time++;
+	    bg_offset -= BG_VEL;
+	    if (bg_offset <= -bg_X)
+		bg_offset = 0;
+
+	    al_clear_to_color(al_map_rgb(0, 0, 0));
+
 	    switch (game) {
                 case 1:
-	            atualiza_jogo(player, inimigos_fase1, boss_fase1,
+	            al_draw_bitmap(background1, bg_offset, 0, 0);
+                    al_draw_bitmap(background1, bg_offset + bg_X, 0, 0);
+		    atualiza_jogo(player, inimigos_fase1, boss_fase1,
 				    powerups_fase1, valid_fase1, valid_pu_fase1
-				    , time, &gameover, ini_num, game);
+				    , time, &gameover, ini_num);
+		    atualiza_tela(player, inimigos_fase1, boss_fase1,
+				    powerups_fase1, valid_fase1, valid_pu_fase1
+				    , ini_num, inimigo1);
                     break;
 		case 2:
+		    al_draw_bitmap(background2, bg_offset, 0, 0);
+                    al_draw_bitmap(background2, bg_offset + bg_X, 0, 0);
 		    atualiza_jogo(player, inimigos_fase2, boss_fase2, 
 				    powerups_fase2, valid_fase2, valid_pu_fase2
-				    , time, &gameover, ini_num, game);
+				    , time, &gameover, ini_num);
                     break;
 		default:
 		    break;
 	    }
+
 	}
 
 	else if (evento.type == ALLEGRO_EVENT_KEY_DOWN && game && 
@@ -1366,6 +1529,10 @@ int main()
     for (size_t i = 0; i < botao_num; i++)
         botao_destroi(botoes[i]);
 
+    al_destroy_bitmap(inimigo1);
+    al_destroy_bitmap(background2);
+    if (background1)
+	al_destroy_bitmap(background1);
     al_destroy_font(font);
     al_destroy_display(tela);
     al_destroy_timer(relogio);
