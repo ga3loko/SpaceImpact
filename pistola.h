@@ -7,9 +7,11 @@
 #define PISTOLA_INI_COOLDOWN 30
 #define PISTOLA_BOSS_COOLDOWN 45
 #define CANHAO_COOLDOWN 75
+#define DETONOU_COOLDOWN 30
 
 typedef struct {
     unsigned char timer;
+    unsigned char detonou;
     bullet *shots;
 } pistola;
 

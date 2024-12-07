@@ -10,6 +10,7 @@ pistola* pistola_cria()
     if (new_pistola == NULL)
 	return NULL;
     new_pistola->timer = 0;
+    new_pistola->detonou = 0;
     new_pistola->shots = NULL;
 
     return new_pistola;

@@ -7,6 +7,8 @@
 #define CANHAO_TAM_X 20
 #define CANHAO_TAM_Y 300
 #define CANHAO_PU1_TAM_Y 20
+#define CANHAO_PU2_R1 20
+#define CANHAO_PU2_R2 75
 
 typedef struct {
     unsigned short x;

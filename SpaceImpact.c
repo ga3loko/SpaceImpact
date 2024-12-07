@@ -88,13 +88,26 @@ void movimenta_bullets_player(player *player){
 	}
     }
 
-    if (player->powerup == PU1) {
-        bullet *index = player->canhao->shots;
-	if (index) {
-            index->y = player->y;
-	    index->x = player->x + player->tam_x/2;
-	}
+    if (player->canhao->shots) {
+        switch (player->powerup) {
+	    case NO_PU:
+                break;
+	    case PU1:
+                player->canhao->shots->y = player->y;
+                player->canhao->shots->x = player->x + player->tam_x/2;
+	        break;
+	    case PU2:
+                bullet_move(player->canhao->shots);
+		if (player->canhao->shots->x > X_TELA) {
+                    bullet_destroi(player->canhao->shots);
+                    player->canhao->shots = NULL;
+		}
+                break;
+	    default:
+		break;
+        }
     }
+
 }
 
 void movimenta_bullets_inimigo(inimigo *inimigo){
@@ -237,7 +250,8 @@ void movimenta_player(player *player)
 	player->arma->timer--;
 
     if (player->controle->especial) {
-        switch (player->powerup) {
+        joystick_especial(player->controle);
+	switch (player->powerup) {
             case NO_PU:
 		break;
 	    case PU1:
@@ -247,6 +261,15 @@ void movimenta_player(player *player)
 	        }
 		break;
 	    case PU2:
+		if (!player->canhao->shots) {
+                    player_especial(player);
+		    player->canhao->detonou = 0;
+		}
+		else {
+		    player->canhao->detonou = 1;
+		    player->canhao->timer = DETONOU_COOLDOWN;
+		    player->canhao->shots->trajetoria = 3;
+		}
 		break;
 	    default:
 		break;
@@ -265,14 +288,22 @@ void movimenta_player(player *player)
 	    }
 	    break;
 	case PU2:
+	    if (player->canhao->shots && !player->canhao->timer && 
+			    player->canhao->detonou) {
+                bullet_destroi(player->canhao->shots);
+                player->canhao->shots = NULL;
+                player->powerup = NO_PU;
+            }
 	    break;
 	default:
 	    break;
     }
 
-    if (player->canhao->timer > 0)
+    if ((player->powerup == PU1 && player->canhao->timer) || 
+        (player->powerup == PU2 && player->canhao->timer 
+	                        && player->canhao->detonou))
 	player->canhao->timer--;
-
+    
     movimenta_bullets_player(player);
 }
 
@@ -310,18 +341,22 @@ unsigned char matou_boss(player *player, boss *boss)
         anterior = index;
     }
     
+    anterior = player->canhao->shots;
     switch (player->powerup) {
         case PU1:
-	    anterior = player->canhao->shots;
 	    if (anterior) {
-                if ((((anterior->y - CANHAO_PU1_TAM_Y/2 >= boss->y - boss->tam_y/2) &&
-                     (boss->y + boss->tam_y/2 >= anterior->y - CANHAO_PU1_TAM_Y/2)) ||
-                     ((boss->y - boss->tam_y/2 >= anterior->y - CANHAO_PU1_TAM_Y/2) &&
-                    (anterior->y + CANHAO_PU1_TAM_Y/2 >= boss->y - boss->tam_y/2))) &&
-                                         (((anterior->x >= boss->x - boss->tam_x/2) &&
-                                          (boss->x + boss->tam_x/2 >= anterior->x)) ||
-                                          ((boss->x - boss->tam_x/2 >= anterior->x) &&
-                                              (X_TELA >= boss->x - boss->tam_x/2)))) {
+                if ((((anterior->y - CANHAO_PU1_TAM_Y/2 >= 
+				boss->y - boss->tam_y/2) &&
+                     (boss->y + boss->tam_y/2 >= 
+		      anterior->y - CANHAO_PU1_TAM_Y/2)) ||
+                     ((boss->y - boss->tam_y/2 >= 
+		       anterior->y - CANHAO_PU1_TAM_Y/2) &&
+                    (anterior->y + CANHAO_PU1_TAM_Y/2 >= 
+		              boss->y - boss->tam_y/2))) &&
+                     (((anterior->x >= boss->x - boss->tam_x/2) &&
+                      (boss->x + boss->tam_x/2 >= anterior->x)) ||
+                      ((boss->x - boss->tam_x/2 >= anterior->x) &&
+                          (X_TELA >= boss->x - boss->tam_x/2)))) {
                     
 		    if (boss->hp >= 3)
 		        boss->hp -= 3;
@@ -336,6 +371,67 @@ unsigned char matou_boss(player *player, boss *boss)
 	    }
 	    break;
         case PU2:
+            if (anterior) {
+                if (!player->canhao->detonou) {
+                    if ((((anterior->y - CANHAO_PU2_R1 >=
+                                boss->y - boss->tam_y/2) &&
+                      (boss->y + boss->tam_y/2 >=
+                                 anterior->y - CANHAO_PU2_R1)) ||
+                     ((boss->y - boss->tam_y/2 >=
+                                  anterior->y - CANHAO_PU2_R1) &&
+                          (anterior->y + CANHAO_PU2_R1 >=
+                              boss->y - boss->tam_y/2))) &&
+                        (((anterior->x - CANHAO_PU2_R1 >=
+                                boss->x - boss->tam_x/2) &&
+                      (boss->x + boss->tam_x/2 >=
+                                 anterior->x - CANHAO_PU2_R1)) ||
+                     ((boss->x - boss->tam_x/2 >=
+                                  anterior->x - CANHAO_PU2_R1) &&
+                          (anterior->x + CANHAO_PU2_R1 >=
+                              boss->x - boss->tam_x/2)))) {
+
+                        if (boss->hp >= 5)
+                            boss->hp -= 5;
+                        else
+                            boss->hp = 0;
+
+                        bullet_destroi(player->canhao->shots);
+                        player->canhao->shots = NULL;
+                        player->powerup = NO_PU;
+
+                    }
+                }
+                if (player->canhao->detonou) {
+                    if ((((anterior->y - CANHAO_PU2_R2 >=
+                                boss->y - boss->tam_y/2) &&
+                      (boss->y + boss->tam_y/2 >=
+                                 anterior->y - CANHAO_PU2_R2)) ||
+                     ((boss->y - boss->tam_y/2 >=
+                                  anterior->y - CANHAO_PU2_R2) &&
+                          (anterior->y + CANHAO_PU2_R2 >=
+                              boss->y - boss->tam_y/2))) &&
+                        (((anterior->x - CANHAO_PU2_R2 >=
+                                boss->x - boss->tam_x/2) &&
+                      (boss->x + boss->tam_x/2 >=
+                                 anterior->x - CANHAO_PU2_R2)) ||
+                     ((boss->x - boss->tam_x/2 >=
+                                  anterior->x - CANHAO_PU2_R2) &&
+                          (anterior->x + CANHAO_PU2_R2 >=
+                              boss->x - boss->tam_x/2)))) {
+
+                        if (boss->hp >= 5)
+			    boss->hp -= 5;
+			else
+		            boss->hp = 0;
+
+			bullet_destroi(player->canhao->shots);
+			player->canhao->shots = NULL;
+			player->powerup = NO_PU;
+                    }
+                }
+            }
+	    break;
+	case NO_PU:
 	    break;
 	default:
 	    break;
@@ -460,24 +556,78 @@ unsigned char matou_inimigo(player *player, inimigo *inimigo)
             anterior = index;
 	}
 
+    anterior = player->canhao->shots;
     switch (player->powerup) {
         case PU1:
-            anterior = player->canhao->shots;
             if (anterior) {
-                if ((((anterior->y - CANHAO_PU1_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2) &&
-                     (inimigo->y + inimigo->tam_y/2 >= anterior->y - CANHAO_PU1_TAM_Y/2)) ||
-                     ((inimigo->y - inimigo->tam_y/2 >= anterior->y - CANHAO_PU1_TAM_Y/2) &&
-                    (anterior->y + CANHAO_PU1_TAM_Y/2 >= inimigo->y - inimigo->tam_y/2))) &&
-                                         (((anterior->x >= inimigo->x - inimigo->tam_x/2) &&
-                                          (inimigo->x + inimigo->tam_x/2 >= anterior->x)) ||
-                                          ((inimigo->x - inimigo->tam_x/2 >= anterior->x) &&
-                                              (X_TELA >= inimigo->x - inimigo->tam_x/2)))) {
+                if ((((anterior->y - CANHAO_PU1_TAM_Y/2 >= 
+				inimigo->y - inimigo->tam_y/2) &&
+                     (inimigo->y + inimigo->tam_y/2 >= 
+		            anterior->y - CANHAO_PU1_TAM_Y/2)) ||
+                     ((inimigo->y - inimigo->tam_y/2 >=
+		             anterior->y - CANHAO_PU1_TAM_Y/2) &&
+                    (anterior->y + CANHAO_PU1_TAM_Y/2 >= 
+		              inimigo->y - inimigo->tam_y/2))) &&
+                    (((anterior->x >= inimigo->x - inimigo->tam_x/2) &&
+                     (inimigo->x + inimigo->tam_x/2 >= anterior->x)) ||
+                     ((inimigo->x - inimigo->tam_x/2 >= anterior->x) &&
+                         (X_TELA >= inimigo->x - inimigo->tam_x/2))))
 
                     inimigo->hp = 0;
-                }
             }
             break;
         case PU2:
+            if (anterior) {
+                if (!player->canhao->detonou) {
+                    if ((((anterior->y - CANHAO_PU2_R1 >= 
+				inimigo->y - inimigo->tam_y/2) &&
+                      (inimigo->y + inimigo->tam_y/2 >= 
+			         anterior->y - CANHAO_PU2_R1)) ||
+                     ((inimigo->y - inimigo->tam_y/2 >= 
+		                  anterior->y - CANHAO_PU2_R1) &&
+                          (anterior->y + CANHAO_PU2_R1 >= 
+			      inimigo->y - inimigo->tam_y/2))) &&
+                        (((anterior->x - CANHAO_PU2_R1 >= 
+			        inimigo->x - inimigo->tam_x/2) &&
+                      (inimigo->x + inimigo->tam_x/2 >= 
+		                 anterior->x - CANHAO_PU2_R1)) ||
+                     ((inimigo->x - inimigo->tam_x/2 >= 
+		                  anterior->x - CANHAO_PU2_R1) &&
+                          (anterior->x + CANHAO_PU2_R1 >= 
+			      inimigo->x - inimigo->tam_x/2)))) {
+		    
+                        inimigo->hp = 0;
+
+                        bullet_destroi(player->canhao->shots);
+                        player->canhao->shots = NULL;
+                        player->powerup = NO_PU;
+
+		    
+		    }
+		}
+                if (player->canhao->detonou) {
+                    if ((((anterior->y - CANHAO_PU2_R2 >=
+                                inimigo->y - inimigo->tam_y/2) &&
+                      (inimigo->y + inimigo->tam_y/2 >=
+                                 anterior->y - CANHAO_PU2_R2)) ||
+                     ((inimigo->y - inimigo->tam_y/2 >=
+                                  anterior->y - CANHAO_PU2_R2) &&
+                          (anterior->y + CANHAO_PU2_R2 >= 
+                              inimigo->y - inimigo->tam_y/2))) &&
+                        (((anterior->x - CANHAO_PU2_R2 >= 
+                                inimigo->x - inimigo->tam_x/2) &&
+                      (inimigo->x + inimigo->tam_x/2 >= 
+                                 anterior->x - CANHAO_PU2_R2)) ||
+                     ((inimigo->x - inimigo->tam_x/2 >= 
+                                  anterior->x - CANHAO_PU2_R2) &&
+                          (anterior->x + CANHAO_PU2_R2 >=
+                              inimigo->x - inimigo->tam_x/2)))) {
+
+                        inimigo->hp = 0;
+
+                    }
+		}
+	    }
             break;
         default:
             break;
@@ -881,20 +1031,26 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **pow
                                  al_map_rgb(0, 255, 0));
  
     bullet *index = player->canhao->shots;
-    switch (player->powerup) {
-        case PU1:
-	    if (index)
-		al_draw_filled_rectangle(index->x,
+    if (index) {
+        switch (player->powerup) {
+            case PU1:
+	    	al_draw_filled_rectangle(index->x,
                                          index->y - CANHAO_PU1_TAM_Y/2,
                                          X_TELA,
                                          index->y + CANHAO_PU1_TAM_Y/2,
                                          al_map_rgb(255, 255, 0));
-	    break;
-	case PU2:
-	    break;
-	default:
-	    break;
-
+	        break;
+	    case PU2:
+		if (!player->canhao->detonou)
+		    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R1,
+				al_map_rgb(0, 255, 0));
+		else
+		    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R2,
+				al_map_rgb(0, 255, 0));
+	        break;
+	    default:
+	        break;
+        }
     }
 
     switch (boss->tipo) {
@@ -924,7 +1080,7 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **pow
             al_draw_filled_circle(powerups[i]->x, powerups[i]->y, POWERUP_R,
 			            al_map_rgb(0, 255, 255));
     }
-
+    printf("BOSS VIDA: %d\n", boss->hp);
     for (bullet *index = player->arma->shots; index != NULL;
                     index = (bullet*) index->prox)
         al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
@@ -978,7 +1134,7 @@ int main()
 
     player* player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X,
                             Y_TELA/2);    
-    size_t ini_num = 0;
+    size_t ini_num = INIMIGOS_FASE1;
     unsigned char valid_fase1[INIMIGOS_FASE1];
     inimigo *inimigos_fase1[INIMIGOS_FASE1];
     powerup *powerups_fase1[PU_NUM];
@@ -1009,7 +1165,7 @@ int main()
                 if (botao_click(botoes[i], evento.mouse.x, evento.mouse.y)) {
                     if (strcmp(botoes[i]->comando, "Jogar") == 0) {
 		        menu = 0;
-			game = 1;
+			game = 2;
 		    }
 		    else if (strcmp(botoes[i]->comando, "Sair") == 0)
 			saiu = 1;
@@ -1149,6 +1305,10 @@ int main()
 	    }
 	}
 
+	else if (evento.type == ALLEGRO_EVENT_KEY_DOWN && game && 
+			evento.keyboard.keycode == ALLEGRO_KEY_C)
+		joystick_especial(player->controle);
+
 	else if ((evento.type == ALLEGRO_EVENT_KEY_UP && game) || 
 	        (evento.type == ALLEGRO_EVENT_KEY_DOWN && game)) {
             switch (evento.keyboard.keycode) {
@@ -1166,9 +1326,6 @@ int main()
 		    break;
 		case ALLEGRO_KEY_SPACE:
 		    joystick_atira(player->controle);
-		    break;
-		case ALLEGRO_KEY_C:
-		    joystick_especial(player->controle);
 		    break;
 		default:
 		    break;
