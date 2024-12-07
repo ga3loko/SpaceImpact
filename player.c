@@ -19,7 +19,9 @@ player* player_cria(unsigned char tam_x, unsigned char tam_y, unsigned short x, 
     new_player->controle = joystick_cria();
     new_player->arma = pistola_cria();
     new_player->canhao = pistola_cria();
-    
+    new_player->frame_atual = 0;
+    new_player->frame_time = 0;
+
     return new_player;
 
 }

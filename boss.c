@@ -89,12 +89,12 @@ void boss_atira(boss *boss)
 	case BOSS1:
 
             shot1 = pistola_atira(boss->x - boss->tam_x/2, 
-			    boss->y + boss->tam_y/2 - 30, 0, boss->arma);
+			    boss->y + 20, 0, boss->arma);
             if (shot1)
 	        boss->arma->shots = shot1;
 
             shot2 = pistola_atira(boss->x - boss->tam_x/2, 
-			    boss->y - boss->tam_y/2 + 30, 0, boss->arma);
+			    boss->y - 20, 0, boss->arma);
             if (shot2)
 	        boss->arma->shots = shot2;
 	    break;

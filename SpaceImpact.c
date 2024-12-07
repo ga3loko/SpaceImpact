@@ -67,6 +67,25 @@
 #define PERDEU 1
 #define INIMIGOS_FASE1 15
 #define INIMIGOS_FASE2 25
+#define IMAGENS_NUM 14
+#define NUM_FRAMES 8
+#define FRAME_DELAY 0.1
+enum tipoImg {
+    inimigo1,
+    inimigo2,
+    inimigo3,
+    inimigo4,
+    boss1,
+    boss2,
+    bala,
+    especial,
+    raio,
+    wave,
+    nuke1,
+    nuke2,
+    jogador,
+    animacao
+};
 
 void movimenta_bullets_player(player *player){
     bullet *anterior = NULL;
@@ -947,43 +966,81 @@ void atualiza_powerup(powerup **powerups, player *player, unsigned short time, u
 
 }
 
-void atualiza_tela(player *player, inimigo **inimigos, boss *boss, powerup **powerups, unsigned char *valid, unsigned char *valid_pu, size_t ini_num, ALLEGRO_BITMAP *inimigo1)
+void atualiza_tela(player *player, inimigo **inimigos, boss *boss, powerup **powerups, unsigned char *valid, unsigned char *valid_pu, size_t ini_num, ALLEGRO_BITMAP **imagens)
 {
-    if (!player->colisao)
-        al_draw_filled_rectangle(player->x - player->tam_x/2,
-                                 player->y - player->tam_y/2,
-                                 player->x + player->tam_x/2,
-                                 player->y + player->tam_y/2,
-                                 al_map_rgb(0, 0, 255));
+    player->frame_time++;
 
+    if (player->frame_time / FPS >= FRAME_DELAY) {
+        player->frame_atual = (player->frame_atual + 1) % NUM_FRAMES;
+        player->frame_time = 0;
+    }
+
+    unsigned short frame_y = al_get_bitmap_height(imagens[animacao]);
+    unsigned short frame_x = al_get_bitmap_width(imagens[animacao]);
+    frame_y = frame_y / NUM_FRAMES;
+
+    int y = frame_y * player->frame_atual;
+
+    if (!player->colisao) {
+        al_draw_bitmap(imagens[jogador], 
+		       player->x - player->tam_x/2, 
+		       player->y - player->tam_y/2, 0);
+	if (player->controle->esq || player->controle->dir ||
+            player->controle->cima || player->controle->baixo) {
+            al_draw_bitmap_region(imagens[animacao], 0, y, frame_x, frame_y,
+                                  player->x - player->tam_x/2 - frame_x/2,
+                                  player->y - player->tam_y/2, 0);
+        }
+
+    }
     else {
-        if ((player->timer_colisao % 15) <= 7)
-            al_draw_filled_rectangle(player->x - player->tam_x/2,
-                                     player->y - player->tam_y/2,
-                                     player->x + player->tam_x/2,
-                                     player->y + player->tam_y/2,
-                                     al_map_rgb(0, 0, 255));
-        player->timer_colisao--;
+        if (player->timer_colisao % 15 <= 7) {
+	    al_draw_bitmap(imagens[jogador], 
+                           player->x - player->tam_x/2, 
+                           player->y - player->tam_y/2, 0);
+	    if (player->controle->esq || player->controle->dir ||
+                player->controle->cima || player->controle->baixo) {
+                al_draw_bitmap_region(imagens[animacao], 0, y, frame_x, frame_y,
+                                      player->x - player->tam_x/2 - frame_x/2,
+                                      player->y - player->tam_y/2, 0);
+            }
+
+	}
+
+	player->timer_colisao--;
 
         if (!player->timer_colisao)
             player->colisao = 0;
     }
-    
+
+
+    unsigned short bullet_x = al_get_bitmap_width(imagens[bala]);
+    unsigned short bullet_y = al_get_bitmap_height(imagens[bala]);
+
     for (size_t i = 0; i < ini_num; i++) {
         if (valid[i]) {
             switch (inimigos[i]->tipo) {
                 case INIMIGO1:
-                    al_draw_bitmap(inimigo1, 
+                    al_draw_bitmap(imagens[inimigo1], 
 				   inimigos[i]->x - inimigos[i]->tam_x/2, 
 				   inimigos[i]->y - inimigos[i]->tam_y/2, 0);
                     break;
-                default:
-                    al_draw_filled_rectangle(
-                                 inimigos[i]->x - inimigos[i]->tam_x/2,
-                                 inimigos[i]->y - inimigos[i]->tam_y/2,
-                                 inimigos[i]->x + inimigos[i]->tam_x/2,
-                                 inimigos[i]->y + inimigos[i]->tam_y/2,
-                                 al_map_rgb(255, 0, 0));
+		case INIMIGO2:
+		    al_draw_bitmap(imagens[inimigo2],
+                                   inimigos[i]->x - inimigos[i]->tam_x/2,
+                                   inimigos[i]->y - inimigos[i]->tam_y/2, 0);
+                    break;
+		case INIMIGO3:
+                    al_draw_bitmap(imagens[inimigo3],
+                                   inimigos[i]->x - inimigos[i]->tam_x/2,
+                                   inimigos[i]->y - inimigos[i]->tam_y/2, 0);
+                    break;
+		case INIMIGO4:
+                    al_draw_bitmap(imagens[inimigo4],
+                                   inimigos[i]->x - inimigos[i]->tam_x/2,
+                                   inimigos[i]->y - inimigos[i]->tam_y/2, 0);
+                    break;
+		default:
                     break;
             }
             if (inimigos[i]->arma != NULL) {
@@ -991,55 +1048,61 @@ void atualiza_tela(player *player, inimigo **inimigos, boss *boss, powerup **pow
                      index != NULL; index = (bullet*) index->prox) {
 
                     if (inimigos[i]->tipo == INIMIGO4)
-                        al_draw_filled_rectangle(
-                                             index->x - BULLET_TAM_Y/2,
-                                             index->y - BULLET_TAM_X/2,
-                                             index->x + BULLET_TAM_Y/2,
-                                             index->y + BULLET_TAM_X/2,
-                                             al_map_rgb(255, 255, 0));
-                    else
-                        al_draw_filled_rectangle(
-                                             index->x - BULLET_TAM_X/2,
-                                             index->y - BULLET_TAM_Y/2,
-                                             index->x + BULLET_TAM_X/2,
-                                             index->y + BULLET_TAM_Y/2,
-                                             al_map_rgb(255, 255, 0));
+                        al_draw_rotated_bitmap(imagens[bala],
+                                               bullet_x / 2, bullet_y /2,
+					       index->x - BULLET_TAM_X/2,
+                                               index->y - BULLET_TAM_Y/2,
+					       ALLEGRO_PI/2, 0);
+
+		    else
+			al_draw_rotated_bitmap(imagens[bala],
+                                               bullet_x / 2, bullet_y /2,
+                                               index->x - BULLET_TAM_X/2,
+                                               index->y - BULLET_TAM_Y/2,
+                                               ALLEGRO_PI, 0);
                 }
             }
         }
     }
 
-    al_draw_filled_rectangle(boss->x - boss->tam_x/2,
-                             boss->y - boss->tam_y/2,
-                             boss->x + boss->tam_x/2,
-                             boss->y + boss->tam_y/2,
-                             al_map_rgb(100, 100, 100));
+    switch (boss->tipo) {
+	case BOSS1:
+            al_draw_bitmap(imagens[boss1],
+                                   boss->x - boss->tam_x/2,
+                                   boss->y - boss->tam_y/2, 0);
+            break;
+	case BOSS2:
+            al_draw_bitmap(imagens[boss2],
+                                   boss->x - boss->tam_x/2,
+                                   boss->y - boss->tam_y/2, 0);
+            break;
+        default:
+	    break;
+    }
 
     for (bullet *index = boss->arma->shots; index != NULL;
                     index = (bullet*) index->prox)
-        al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
-                                 index->y - BULLET_TAM_Y/2,
-                                 index->x + BULLET_TAM_X/2,
-                                 index->y + BULLET_TAM_Y/2,
-                                 al_map_rgb(0, 255, 0));
+        al_draw_rotated_bitmap(imagens[bala], bullet_x / 2, bullet_y /2,
+                               index->x - BULLET_TAM_X/2, 
+			       index->y - BULLET_TAM_Y/2, ALLEGRO_PI, 0);
 
     bullet *index = player->canhao->shots;
+    unsigned short raio_x;
     if (index) {
         switch (player->powerup) {
             case PU1:
-                al_draw_filled_rectangle(index->x,
-                                         index->y - CANHAO_PU1_TAM_Y/2,
-                                         X_TELA,
-                                         index->y + CANHAO_PU1_TAM_Y/2,
-                                         al_map_rgb(255, 255, 0));
+	        raio_x = al_get_bitmap_width(imagens[raio]);
+		for (unsigned short x = index->x; x < X_TELA; x += raio_x)
+		    al_draw_bitmap(imagens[raio], x, 
+				    index->y - CANHAO_PU1_TAM_Y/2, 0);
                 break;
             case PU2:
                 if (!player->canhao->detonou)
-                    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R1,
-                                al_map_rgb(0, 255, 0));
-                else
-                    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R2,
-                                al_map_rgb(0, 255, 0));
+                    al_draw_bitmap(imagens[nuke1], index->x - CANHAO_PU2_R1,
+                                   index->y - CANHAO_PU2_R1, 0);
+		else
+	            al_draw_bitmap(imagens[nuke2], index->x - CANHAO_PU2_R2,
+                               index->y - CANHAO_PU2_R2, 0);
                 break;
             default:
                 break;
@@ -1051,36 +1114,30 @@ void atualiza_tela(player *player, inimigo **inimigos, boss *boss, powerup **pow
         case BOSS1:
             for (bullet *index = boss->canhao->shots; index != NULL;
                     index = (bullet*) index->prox)
-            al_draw_filled_rectangle(index->x - CANHAO_TAM_X/2,
-                                     index->y - CANHAO_TAM_Y/2,
-                                     index->x + CANHAO_TAM_X/2,
-                                     index->y + CANHAO_TAM_Y/2,
-                                     al_map_rgb(0, 255, 0));
-            break;
+                al_draw_bitmap(imagens[wave],
+			       index->x - CANHAO_TAM_X/2,
+			       index->y - CANHAO_TAM_Y/2, 0);
+	    break;
         case BOSS2:
             if (boss->trooper && boss->valid)
-                al_draw_filled_rectangle(
-                             boss->trooper->x - boss->trooper->tam_x/2,
-                             boss->trooper->y - boss->trooper->tam_y/2,
-                             boss->trooper->x + boss->trooper->tam_x/2,
-                             boss->trooper->y + boss->trooper->tam_y/2,
-                             al_map_rgb(255, 0, 0));
-            break;
+                al_draw_bitmap(imagens[inimigo3],
+			       boss->trooper->x - boss->trooper->tam_x/2,
+			       boss->trooper->y - boss->trooper->tam_y/2, 0);
+	    break;
         default:
             break;
     }
     for (size_t i = 0; i < PU_NUM; i++) {
         if (valid_pu[i])
-            al_draw_filled_circle(powerups[i]->x, powerups[i]->y, POWERUP_R,
-                                    al_map_rgb(0, 255, 255));
+            al_draw_bitmap(imagens[especial], 
+			   powerups[i]->x - POWERUP_R,
+			   powerups[i]->y - POWERUP_R, 0);
     }
     for (bullet *index = player->arma->shots; index != NULL;
                     index = (bullet*) index->prox)
-        al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
-                                 index->y - BULLET_TAM_Y/2,
-                                 index->x + BULLET_TAM_X/2,
-                                 index->y + BULLET_TAM_Y/2,
-                                 al_map_rgb(0, 255, 0));
+        al_draw_bitmap(imagens[bala],
+                       index->x - BULLET_TAM_X/2,
+                       index->y - BULLET_TAM_Y/2, 0);
 
     al_flip_display();
 
@@ -1098,137 +1155,6 @@ void atualiza_jogo(player *player, inimigo **inimigos, boss *boss, powerup **pow
 
     atualiza_powerup(powerups, player, time, valid_pu);
     
-/*    if (!player->colisao)
-        al_draw_filled_rectangle(player->x - player->tam_x/2,
-                                 player->y - player->tam_y/2,
-                                 player->x + player->tam_x/2,
-                                 player->y + player->tam_y/2,
-                                 al_map_rgb(0, 0, 255));
-
-    else {
-        if ((player->timer_colisao % 15) <= 7)
-            al_draw_filled_rectangle(player->x - player->tam_x/2,
-                                     player->y - player->tam_y/2,
-                                     player->x + player->tam_x/2,
-                                     player->y + player->tam_y/2,
-                                     al_map_rgb(0, 0, 255));
-        player->timer_colisao--;
-
-	if (!player->timer_colisao)
-            player->colisao = 0;
-    }
-
-    for (size_t i = 0; i < ini_num; i++) {
-        if (valid[i]) {
-            switch (inimigos[i]->tipo) {
-                case INIMIGO1:
-		    al_draw_bitmap(inimigo1, inimigos[i]->x, inimigos[i]->y, 0);
-		    break;
-		default:
-		    al_draw_filled_rectangle(
-                                 inimigos[i]->x - inimigos[i]->tam_x/2,
-                                 inimigos[i]->y - inimigos[i]->tam_y/2,
-                                 inimigos[i]->x + inimigos[i]->tam_x/2,
-                                 inimigos[i]->y + inimigos[i]->tam_y/2,
-                                 al_map_rgb(255, 0, 0));
-		    break;
-	    }
-            if (inimigos[i]->arma != NULL) {
-                for (bullet *index = inimigos[i]->arma->shots;
-                     index != NULL; index = (bullet*) index->prox) {
-
-                    if (inimigos[i]->tipo == INIMIGO4)
-                        al_draw_filled_rectangle(
-                                             index->x - BULLET_TAM_Y/2,
-                                             index->y - BULLET_TAM_X/2,
-                                             index->x + BULLET_TAM_Y/2,
-                                             index->y + BULLET_TAM_X/2,
-                                             al_map_rgb(255, 255, 0));
-                    else
-                        al_draw_filled_rectangle(
-                                             index->x - BULLET_TAM_X/2,
-                                             index->y - BULLET_TAM_Y/2,
-                                             index->x + BULLET_TAM_X/2,
-                                             index->y + BULLET_TAM_Y/2,
-                                             al_map_rgb(255, 255, 0));
-                }
-            }
-        }
-    }
-
-    al_draw_filled_rectangle(boss->x - boss->tam_x/2,
-                             boss->y - boss->tam_y/2,
-                             boss->x + boss->tam_x/2,
-                             boss->y + boss->tam_y/2,
-                             al_map_rgb(100, 100, 100));
-
-    for (bullet *index = boss->arma->shots; index != NULL;
-                    index = (bullet*) index->prox)
-        al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
-                                 index->y - BULLET_TAM_Y/2,
-                                 index->x + BULLET_TAM_X/2,
-                                 index->y + BULLET_TAM_Y/2,
-                                 al_map_rgb(0, 255, 0));
- 
-    bullet *index = player->canhao->shots;
-    if (index) {
-        switch (player->powerup) {
-            case PU1:
-	    	al_draw_filled_rectangle(index->x,
-                                         index->y - CANHAO_PU1_TAM_Y/2,
-                                         X_TELA,
-                                         index->y + CANHAO_PU1_TAM_Y/2,
-                                         al_map_rgb(255, 255, 0));
-	        break;
-	    case PU2:
-		if (!player->canhao->detonou)
-		    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R1,
-				al_map_rgb(0, 255, 0));
-		else
-		    al_draw_filled_circle(index->x, index->y, CANHAO_PU2_R2,
-				al_map_rgb(0, 255, 0));
-	        break;
-	    default:
-	        break;
-        }
-    }
-
-    switch (boss->tipo) {
-        case BOSS1:
-	    for (bullet *index = boss->canhao->shots; index != NULL;
-                    index = (bullet*) index->prox)
-            al_draw_filled_rectangle(index->x - CANHAO_TAM_X/2,
-                                     index->y - CANHAO_TAM_Y/2,
-                                     index->x + CANHAO_TAM_X/2,
-                                     index->y + CANHAO_TAM_Y/2,
-                                     al_map_rgb(0, 255, 0));
-	    break;
-	case BOSS2:
-	    if (boss->trooper && boss->valid)
-                al_draw_filled_rectangle(
-                             boss->trooper->x - boss->trooper->tam_x/2,
-                             boss->trooper->y - boss->trooper->tam_y/2,
-                             boss->trooper->x + boss->trooper->tam_x/2,
-                             boss->trooper->y + boss->trooper->tam_y/2,
-                             al_map_rgb(255, 0, 0));
-	    break;
-	default:
-	    break;
-    }
-    for (size_t i = 0; i < PU_NUM; i++) {
-        if (valid_pu[i])
-            al_draw_filled_circle(powerups[i]->x, powerups[i]->y, POWERUP_R,
-			            al_map_rgb(0, 255, 255));
-    }
-    for (bullet *index = player->arma->shots; index != NULL;
-                    index = (bullet*) index->prox)
-        al_draw_filled_rectangle(index->x - BULLET_TAM_X/2,
-                                 index->y - BULLET_TAM_Y/2,
-                                 index->x + BULLET_TAM_X/2,
-                                 index->y + BULLET_TAM_Y/2,
-                                 al_map_rgb(0, 255, 0));
-
-    al_flip_display();*/
 }
 
 void atualiza_menu(botao **botoes, unsigned char botao_num, ALLEGRO_FONT* font)
@@ -1262,7 +1188,22 @@ int main()
     ALLEGRO_DISPLAY* tela = al_create_display(X_TELA, Y_TELA);
     ALLEGRO_BITMAP *background1 = al_load_bitmap("Imagens/back1.png");
     ALLEGRO_BITMAP *background2 = al_load_bitmap("Imagens/back2.png");
-    ALLEGRO_BITMAP *inimigo1 = al_load_bitmap("Imagens/inimigo1.png");
+    ALLEGRO_BITMAP *imagens[IMAGENS_NUM];
+
+    imagens[inimigo1] = al_load_bitmap("Imagens/inimigo1.png");
+    imagens[inimigo2] = al_load_bitmap("Imagens/inimigo2.png");
+    imagens[inimigo3] = al_load_bitmap("Imagens/inimigo3.png");
+    imagens[inimigo4] = al_load_bitmap("Imagens/inimigo4.png");
+    imagens[boss1] = al_load_bitmap("Imagens/boss1.png");
+    imagens[boss2] = al_load_bitmap("Imagens/boss2.png");
+    imagens[bala] = al_load_bitmap("Imagens/bullet.png");
+    imagens[especial] = al_load_bitmap("Imagens/powerup.png");
+    imagens[raio] = al_load_bitmap("Imagens/raio.png");
+    imagens[wave] = al_load_bitmap("Imagens/wave.png");
+    imagens[nuke1] = al_load_bitmap("Imagens/nuke1.png");
+    imagens[nuke2] = al_load_bitmap("Imagens/nuke2.png");
+    imagens[jogador] = al_load_bitmap("Imagens/player.png");
+    imagens[animacao] = al_load_bitmap("Imagens/animacao.png");
 
     al_register_event_source(fila, al_get_keyboard_event_source());
     al_register_event_source(fila, al_get_display_event_source(tela));
@@ -1277,7 +1218,7 @@ int main()
 
     player* player = player_cria(PLAYER_TAM_X, PLAYER_TAM_Y, PLAYER_TAM_X,
                             Y_TELA/2);    
-    size_t ini_num = 0;
+    size_t ini_num = INIMIGOS_FASE1;
     unsigned char valid_fase1[INIMIGOS_FASE1];
     inimigo *inimigos_fase1[INIMIGOS_FASE1];
     powerup *powerups_fase1[PU_NUM];
@@ -1311,7 +1252,7 @@ int main()
                 if (botao_click(botoes[i], evento.mouse.x, evento.mouse.y)) {
                     if (strcmp(botoes[i]->comando, "Jogar") == 0) {
 		        menu = 0;
-			game = 1;
+			game = 2;
 		    }
 		    else if (strcmp(botoes[i]->comando, "Sair") == 0)
 			saiu = 1;
@@ -1453,7 +1394,7 @@ int main()
 				    , time, &gameover, ini_num);
 		    atualiza_tela(player, inimigos_fase1, boss_fase1,
 				    powerups_fase1, valid_fase1, valid_pu_fase1
-				    , ini_num, inimigo1);
+				    , ini_num, imagens);
                     break;
 		case 2:
 		    al_draw_bitmap(background2, bg_offset, 0, 0);
@@ -1461,6 +1402,9 @@ int main()
 		    atualiza_jogo(player, inimigos_fase2, boss_fase2, 
 				    powerups_fase2, valid_fase2, valid_pu_fase2
 				    , time, &gameover, ini_num);
+		    atualiza_tela(player, inimigos_fase2, boss_fase2,
+                                    powerups_fase2, valid_fase2, valid_pu_fase2
+                                    , ini_num, imagens);
                     break;
 		default:
 		    break;
@@ -1529,7 +1473,9 @@ int main()
     for (size_t i = 0; i < botao_num; i++)
         botao_destroi(botoes[i]);
 
-    al_destroy_bitmap(inimigo1);
+    for (size_t i = 0; i < IMAGENS_NUM; i++)
+	al_destroy_bitmap(imagens[i]);
+
     al_destroy_bitmap(background2);
     if (background1)
 	al_destroy_bitmap(background1);

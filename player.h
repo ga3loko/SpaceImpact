@@ -8,7 +8,7 @@
 #define PLAYER_HP 3
 #define PLAYER_VEL 7
 #define PLAYER_TAM_X 80
-#define PLAYER_TAM_Y 40
+#define PLAYER_TAM_Y 64
 #define INVENCIBILIDADE 90
 
 typedef struct {
@@ -20,6 +20,8 @@ typedef struct {
     unsigned short x;
     unsigned short y;
     unsigned short pontuacao;
+    unsigned char frame_atual;
+    unsigned short frame_time;
     enum tipoPower powerup;
     joystick *controle;
     pistola *arma;
